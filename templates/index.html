@@ -1,0 +1,18 @@
+{% extends "layout.html" %} {% block content %}
+
+<form hx-post="/prompts" hx-target="tbody" hx-swap="beforeend" class="grid">
+    <input name="title" placeholder="Prompt title" required />
+    <input name="body" placeholder="Prompt body" required />
+    <button type="submit">Add</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Body</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,14 @@
+body {
+    font-family:
+        Open Sans,
+        Arial;
+    color: #050505;
+    font-size: 16px;
+    margin: 2em auto;
+    max-width: 800px;
+    padding: 1em;
+    line-height: 1.4;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
+}

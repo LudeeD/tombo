@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Pronto</title>
+        <script src="/js/htmx.min.js"></script>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <header><h1>📚 Prompt Library</h1></header>
+        <main hx-target="this" hx-swap="beforeend">
+            {% block content %}{% endblock %}
+        </main>
+    </body>
+</html>
