@@ -41,27 +41,27 @@
         </button>
     </form>
 
-    <button
-        hx-post="/prompts"
-        hx-target="tbody"
-        hx-swap="beforeend"
-        style="
-            padding: 8px 16px;
-            background-color: #e0e0e0;
-            border: 1px solid #ccc;
-            font-family: monospace;
-            cursor: pointer;
-        "
-    >
-        + Add Prompt
-    </button>
+    <a href="/prompt/new">+ Add Prompt</a>
 </div>
 
 <div class="prompt-list">
     {% for p in prompts %}
-    <div class="prompt-card" id="prompt-{{ p.id }}">
+    <div
+        style="
+            border: 1px solid #ccc;
+            padding: 16px;
+            margin-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        "
+        id="prompt-{{ p.id }}"
+    >
         <div>
-            <div class="prompt-title">{{ p.title }}</div>
+            <div>
+                <a class="" href="/prompt/{{ p.id }}">[view]</a
+                ><span class="prompt-title"> {{ p.title }}</span>
+            </div>
             <div class="prompt-meta">{{ p.description }}</div>
         </div>
         <div class="upvotes">▲ 28</div>

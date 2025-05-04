@@ -12,4 +12,4 @@ sqlx = { version = "0.8", features = ["postgres", "runtime-tokio-rustls", "macro
 askama = { version = "0.14"}
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
-uuid = { version = "1", features = ["v4"] }
+uuid = { version = "1", features = ["v4", "serde"] }

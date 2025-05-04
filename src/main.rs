@@ -2,8 +2,11 @@ mod db;
 mod handler;
 mod public;
 
-use axum::{routing::get, Router};
-use handler::index;
+use axum::{
+    routing::{get, post},
+    Router,
+};
+use handler::{add_prompt, create_prompt, index, specific_prompt};
 use tracing::info;
 
 #[tokio::main]
@@ -26,7 +29,9 @@ async fn main() {
         .route("/dashboard", get(index))
         .route("/js/htmx.min.js", get(public::htmx))
         .route("/style.css", get(public::css))
-        // .route("/prompts", post(create_prompt))
+        .route("/prompt/new", get(add_prompt))
+        .route("/prompt/{prompt_id}", get(specific_prompt))
+        .route("/prompt", post(create_prompt))
         .with_state(pool);
 
     // run our app with hyper, listening globally on port 3000
