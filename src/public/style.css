@@ -62,12 +62,6 @@ a:hover {
 }
 
 .prompt-card {
-    border: 1px solid #ccc;
-    padding: 16px;
-    margin-top: 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
 }
 
 .prompt-title {
