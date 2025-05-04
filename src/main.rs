@@ -4,6 +4,7 @@ mod public;
 
 use axum::{routing::get, Router};
 use handler::index;
+use tracing::info;
 
 #[tokio::main]
 async fn main() {
@@ -12,8 +13,17 @@ async fn main() {
 
     let pool = db::pool_from_env().await;
 
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await
+        .expect("Failed to run the migrations");
+
+    info!("Migrations completed successfully!");
+
     let app = Router::new()
         .route("/", get(index))
+        .route("/discover", get(index))
+        .route("/dashboard", get(index))
         .route("/js/htmx.min.js", get(public::htmx))
         .route("/style.css", get(public::css))
         // .route("/prompts", post(create_prompt))

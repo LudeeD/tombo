@@ -1,8 +1,6 @@
 body {
-    font-family:
-        Open Sans,
-        Arial;
-    color: #050505;
+    font-family: ui-monospace, monospace;
+    color: #333;
     font-size: 16px;
     margin: 2em auto;
     max-width: 800px;
@@ -11,4 +9,78 @@ body {
     -webkit-hyphens: auto;
     -ms-hyphens: auto;
     hyphens: auto;
+}
+
+h1 {
+    margin: 0;
+}
+
+p {
+    margin: 0;
+}
+
+header {
+    display: flex;
+    flex-direction: row;
+}
+
+button {
+    padding: 8px 16px;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    font-family: monospace;
+    cursor: pointer;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.branding {
+    display: flex;
+    align-items: center;
+}
+
+.dashboard-link {
+    text-decoration: none;
+    color: blue;
+}
+
+.tagline {
+    margin: 4px 0 0 0;
+}
+
+.prompt-list {
+    margin: 0 auto;
+}
+
+.prompt-card {
+    border: 1px solid #ccc;
+    padding: 16px;
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.prompt-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.prompt-meta {
+    color: #666;
+    font-size: 14px;
+}
+
+.upvotes {
+    white-space: nowrap;
+    font-size: 14px;
 }

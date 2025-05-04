@@ -1,18 +1,87 @@
 {% extends "layout.html" %} {% block content %}
 
-<form hx-post="/prompts" hx-target="tbody" hx-swap="beforeend" class="grid">
-    <input name="title" placeholder="Prompt title" required />
-    <input name="body" placeholder="Prompt body" required />
-    <button type="submit">Add</button>
-</form>
+<div
+    style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 10px 0;
+    "
+>
+    <form
+        hx-post="/prompts"
+        hx-target="tbody"
+        hx-swap="beforeend"
+        style="display: flex; border: 1px solid #ccc; background-color: #f5f5f5"
+    >
+        <input
+            name="search"
+            placeholder="Search prompts..."
+            required
+            style="
+                border: none;
+                padding: 8px 12px;
+                font-family: monospace;
+                outline: none;
+                min-width: 200px;
+            "
+        />
+        <button
+            type="submit"
+            style="
+                border: none;
+                padding: 8px 16px;
+                background-color: #e0e0e0;
+                font-family: monospace;
+                cursor: pointer;
+            "
+        >
+            Search
+        </button>
+    </form>
 
-<table>
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Body</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+    <button
+        hx-post="/prompts"
+        hx-target="tbody"
+        hx-swap="beforeend"
+        style="
+            padding: 8px 16px;
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            font-family: monospace;
+            cursor: pointer;
+        "
+    >
+        + Add Prompt
+    </button>
+</div>
+
+<div class="prompt-list">
+    <div class="prompt-card">
+        <div>
+            <div class="prompt-title">Creative Story Generator</div>
+            <div class="prompt-meta">
+                Category: Creative Writing By: Jane Doe
+            </div>
+        </div>
+        <div class="upvotes">▲ 42</div>
+    </div>
+
+    <div class="prompt-card">
+        <div>
+            <div class="prompt-title">Code Refactoring Assistant</div>
+            <div class="prompt-meta">Category: Programming By: John Smith</div>
+        </div>
+        <div class="upvotes">▲ 28</div>
+    </div>
+
+    <div class="prompt-card">
+        <div>
+            <div class="prompt-title">Email Response Template</div>
+            <div class="prompt-meta">Category: Business By: Alex Johnson</div>
+        </div>
+        <div class="upvotes">▲ 15</div>
+    </div>
+</div>
 {% endblock %}

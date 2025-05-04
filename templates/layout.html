@@ -2,14 +2,24 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Pronto</title>
+        <title>Tombo</title>
         <script src="/js/htmx.min.js"></script>
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
-        <header><h1>📚 Prompt Library</h1></header>
-        <main hx-target="this" hx-swap="beforeend">
-            {% block content %}{% endblock %}
-        </main>
+        <header>
+            <div>
+                <h1>📚 Tombo</h1>
+                <p>the collaborative prompt library</p>
+            </div>
+            <div>
+                <a href="/dashboard" class="dashboard-link">Log in</a>
+                <a href="/dashboard" class="dashboard-link">Sign up</a>
+            </div>
+        </header>
+        <hr />
+        {% block content %}
+        <p>Placeholder content</p>
+        {% endblock %}
     </body>
 </html>
