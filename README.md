@@ -2,10 +2,18 @@
 
 Tombo is a web application for creating, sharing, and discovering AI prompts. Built with Rust, Axum, and PostgreSQL.
 
-## Features
+## Roadmap
 
-- Create and manage AI prompts
-- Browse prompts created by other users
-- User authentication system
-- Category organization for prompts
-- Visibility controls (private, public, shareable)
+Next
+- [ ] List public prompts
+- [ ] Deploy with only public prompts
+- [ ] Login
+- [ ] Personal Dashboard
+- [ ] Create and manage prompts
+
+Ideas
+- [ ] Shareable prompts
+- [ ] Prompts templates
+- [ ] Browser extension
+- [ ] Product hunt release
+- [ ] MCP server
