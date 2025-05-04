@@ -15,7 +15,7 @@ CREATE TABLE categories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL UNIQUE,
     created_by UUID REFERENCES users(id) ON DELETE SET NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- === ENUM TYPE FOR VISIBILITY ===
@@ -28,11 +28,11 @@ CREATE TABLE prompts (
     category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
-    description TEXT,
+    description TEXT NOT NULL,
     visibility prompt_visibility NOT NULL DEFAULT 'private',
     version INTEGER NOT NULL DEFAULT 1,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- === SHARED PROMPTS ===

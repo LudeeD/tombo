@@ -58,30 +58,14 @@
 </div>
 
 <div class="prompt-list">
-    <div class="prompt-card">
+    {% for p in prompts %}
+    <div class="prompt-card" id="prompt-{{ p.id }}">
         <div>
-            <div class="prompt-title">Creative Story Generator</div>
-            <div class="prompt-meta">
-                Category: Creative Writing By: Jane Doe
-            </div>
-        </div>
-        <div class="upvotes">▲ 42</div>
-    </div>
-
-    <div class="prompt-card">
-        <div>
-            <div class="prompt-title">Code Refactoring Assistant</div>
-            <div class="prompt-meta">Category: Programming By: John Smith</div>
+            <div class="prompt-title">{{ p.title }}</div>
+            <div class="prompt-meta">{{ p.description }}</div>
         </div>
         <div class="upvotes">▲ 28</div>
     </div>
-
-    <div class="prompt-card">
-        <div>
-            <div class="prompt-title">Email Response Template</div>
-            <div class="prompt-meta">Category: Business By: Alex Johnson</div>
-        </div>
-        <div class="upvotes">▲ 15</div>
-    </div>
+    {% endfor %}
 </div>
 {% endblock %}

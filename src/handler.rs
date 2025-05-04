@@ -2,35 +2,36 @@ use askama::Template;
 use axum::{
     extract::State,
     response::{Html, IntoResponse},
-    Form,
 };
-use serde::Deserialize;
-use sqlx::PgPool;
+use sqlx::{types::time::OffsetDateTime, PgPool};
 use uuid::Uuid;
 
 #[derive(Template)]
 #[template(path = "index.html")]
 pub struct IndexTemplate {
-    prompts: Vec<PromptRow>,
+    prompts: Vec<PromptSummary>,
 }
 
-#[derive(Template, sqlx::FromRow, Clone)]
-#[template(path = "prompt_row.html")]
-pub struct PromptRow {
+#[derive(sqlx::Type, Clone)]
+pub struct PromptSummary {
     id: Uuid,
+    user_name: String,
     title: String,
-    body: String,
+    description: String,
+    updated_at: OffsetDateTime,
 }
 
 pub async fn index(State(pool): State<PgPool>) -> impl IntoResponse {
-    // let rows: Vec<PromptRow> = sqlx::query_as::<_, PromptRow>(
-    //     "SELECT id, title, body FROM prompts ORDER BY created_at DESC",
-    // )
-    // .fetch_all(&pool)
-    // .await
-    // .unwrap_or_default();
-
-    let rows = Vec::new();
+    let rows: Vec<PromptSummary> = sqlx::query_as!(
+        PromptSummary,
+        "SELECT prompts.id, users.name AS user_name, title, description, prompts.updated_at
+        FROM prompts
+        INNER JOIN users ON prompts.user_id = users.id
+        ORDER BY prompts.created_at DESC",
+    )
+    .fetch_all(&pool)
+    .await
+    .unwrap_or_default();
 
     let template = IndexTemplate { prompts: rows };
 
