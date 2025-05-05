@@ -1,0 +1,64 @@
+{% extends "layout.html" %} {% block content %}
+
+<article class="prompt-card" id="prompt-{{ prompt.id }}">
+    <header class="prompt-header">
+        <div class="prompt-header-top">
+            <div class="upvote-wrapper">
+                <form method="post" action="/prompts/{{ prompt.id }}/upvote">
+                    <button
+                        type="submit"
+                        class="upvote-button"
+                        aria-label="Upvote this prompt"
+                    >
+                        ▲
+                    </button>
+                    <span class="upvote-count">69</span>
+                </form>
+            </div>
+            <h2 class="prompt-title">{{ prompt.title }}</h2>
+        </div>
+        <p class="prompt-meta">Category: Demo</p>
+    </header>
+
+    <div class="prompt-copy-row">
+        <button
+            disabled
+            class="copy-button"
+            onclick="copyPrompt('{{ prompt.id }}')"
+        >
+            Share
+        </button>
+        <button
+            class="copy-button"
+            onclick="copyPrompt('{{ prompt.id }}', this)"
+        >
+            Copy
+        </button>
+    </div>
+    <pre id="prompt-content-{{ prompt.id }}" class="prompt-content">
+{{ prompt.content }}</pre
+    >
+
+    <footer class="prompt-footer">
+        <small>Added on {{ prompt.updated_at }}</small>
+        <small>By: {{ prompt.user_name }}</small>
+    </footer>
+</article>
+
+<script>
+    function copyPrompt(id, button) {
+        const content = document.getElementById(`prompt-content-${id}`);
+        if (!content) return;
+
+        const text = content.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            const originalText = button.innerText;
+            button.innerText = "Copied!";
+            setTimeout(() => {
+                button.innerText = originalText;
+            }, 2000);
+        });
+    }
+</script>
+
+{% endblock %}

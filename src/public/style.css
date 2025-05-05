@@ -1,44 +1,27 @@
+/* Base Typography & Layout */
 body {
     font-family: ui-monospace, monospace;
     color: #333;
     font-size: 16px;
+    line-height: 1.4;
     margin: 2em auto;
     max-width: 800px;
     padding: 1em;
-    line-height: 1.4;
-    -webkit-hyphens: auto;
-    -ms-hyphens: auto;
     hyphens: auto;
 }
 
-h1 {
+h1,
+h2,
+h3 {
     margin: 0;
+    font-weight: bold;
 }
 
 p {
     margin: 0;
 }
 
-header {
-    display: flex;
-    flex-direction: row;
-}
-
-button {
-    padding: 10px 20px;
-    background-color: #e0e0e0;
-    border: 1px solid #ccc;
-    font-family: monospace;
-    cursor: pointer;
-}
-
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-}
-
+/* Links */
 a {
     text-decoration: none;
     color: blue;
@@ -46,6 +29,14 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
 }
 
 .branding {
@@ -57,26 +48,120 @@ a:hover {
     margin: 4px 0 0 0;
 }
 
-.prompt-list {
-    margin: 0 auto;
+/* Prompt Card Styles */
+.prompt-card {
+    margin-top: 24px;
+    border: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-.prompt-card {
+.prompt-header {
+    background-color: #f2f3f5;
+    padding: 12px 16px;
+}
+
+.prompt-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    gap: 8px;
 }
 
 .prompt-title {
+    font-size: 1.2rem;
     font-weight: bold;
-    margin-bottom: 4px;
-}
-
-.prompt-meta {
-    color: #666;
-    font-size: 14px;
+    margin: 0;
 }
 
 .upvotes {
+    font-size: 0.85rem;
     white-space: nowrap;
-    font-size: 14px;
+    color: #333;
+}
+
+.prompt-meta {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0;
+}
+
+.prompt-content {
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+    margin: 0;
+    white-space: pre-wrap;
+    font-family: ui-monospace, monospace;
+    font-size: 0.95rem;
+    background-color: #fff;
+}
+
+.prompt-footer {
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #ddd;
+    color: #555;
+    background-color: #f2f3f5;
+    font-size: 0.8rem;
+}
+
+.upvote-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.upvote-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    color: #333;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.upvote-button:hover {
+    color: #4a90e2;
+}
+
+.upvote-button:active {
+    transform: scale(0.95);
+}
+
+.upvote-count {
+    font-size: 0.85rem;
+    margin-top: 2px;
+}
+
+.prompt-copy-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0 1rem;
+    margin-top: -0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.copy-button {
+    background-color: #e0e0e0;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: monospace;
+    transition: background-color 0.2s ease;
+}
+
+.copy-button:hover {
+    background-color: #d5d5d5;
 }
 
 /* Prompt Form Styles */
@@ -92,7 +177,6 @@ a:hover {
 }
 
 .form-header h3 {
-    margin: 0;
     font-size: 18px;
 }
 
@@ -112,8 +196,16 @@ a:hover {
     padding: 8px;
     border: 1px solid #ccc;
     font-family: ui-monospace, monospace;
+    font-size: 1em;
+    box-sizing: border-box;
 }
 
+textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+/* Form Actions */
 .form-actions {
     display: flex;
     gap: 10px;
@@ -136,28 +228,7 @@ a:hover {
     cursor: pointer;
 }
 
-label {
-    display: block;
-    margin-top: 20px;
-    margin-bottom: 5px;
-}
-
-input[type="text"],
-textarea,
-select {
-    width: 100%;
-    padding: 10px;
-    font-family: monospace;
-    font-size: 1em;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-}
-
-textarea {
-    height: 150px;
-    resize: vertical;
-}
-
+/* Utility */
 .form-row {
     display: flex;
     justify-content: space-between;
@@ -171,18 +242,4 @@ textarea {
 
 .form-row > div:last-child {
     margin-right: 0;
-}
-
-.buttons {
-    margin-top: 30px;
-}
-
-.cancel-btn {
-    background-color: #e6e6e6;
-    color: #333;
-}
-
-.submit-btn {
-    background-color: #1a1a1a;
-    color: #fff;
 }

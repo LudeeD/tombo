@@ -6,7 +6,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use handler::{add_prompt, create_prompt, index, specific_prompt};
+use handler::{add_prompt, index, specific_prompt};
 use tracing::info;
 
 #[tokio::main]
@@ -31,7 +31,6 @@ async fn main() {
         .route("/style.css", get(public::css))
         .route("/prompt/new", get(add_prompt))
         .route("/prompt/{prompt_id}", get(specific_prompt))
-        .route("/prompt", post(create_prompt))
         .with_state(pool);
 
     // run our app with hyper, listening globally on port 3000
