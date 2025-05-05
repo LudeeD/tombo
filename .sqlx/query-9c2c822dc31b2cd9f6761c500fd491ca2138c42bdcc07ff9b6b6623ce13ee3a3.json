@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            prompts.id,\n            prompts.created_by,\n            users.name as created_by_name,\n            prompts.title,\n            prompts.description,\n            COALESCE(SUM(prompt_votes.vote_type), 0) as upvotes\n        FROM prompts\n        JOIN users ON users.id = prompts.created_by\n        LEFT JOIN prompt_votes ON prompt_votes.prompt_id = prompts.id\n        WHERE prompts.visibility = 'public'\n        GROUP BY prompts.id, prompts.created_by, users.name, prompts.title, prompts.description\n        ORDER BY prompts.created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_by",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "created_by_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "title",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "upvotes",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "9c2c822dc31b2cd9f6761c500fd491ca2138c42bdcc07ff9b6b6623ce13ee3a3"
+}
