@@ -64,7 +64,7 @@
             </div>
             <div class="prompt-meta">{{ p.description }}</div>
         </div>
-        <div class="upvotes">▲ 28</div>
+        <div class="upvotes">▲ {{ p.upvotes.unwrap_or_default() }}</div>
     </div>
     {% endfor %}
 </div>

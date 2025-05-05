@@ -1,12 +1,10 @@
 mod db;
 mod handler;
 mod public;
+mod types;
 
-use axum::{
-    routing::{get, post},
-    Router,
-};
-use handler::{add_prompt, index, specific_prompt};
+use axum::{routing::get, Router};
+use handler::{index, specific_prompt};
 use tracing::info;
 
 #[tokio::main]
@@ -25,11 +23,11 @@ async fn main() {
 
     let app = Router::new()
         .route("/", get(index))
-        .route("/discover", get(index))
-        .route("/dashboard", get(index))
+        // .route("/discover", get(index))
+        // .route("/dashboard", get(index))
         .route("/js/htmx.min.js", get(public::htmx))
         .route("/style.css", get(public::css))
-        .route("/prompt/new", get(add_prompt))
+        // .route("/prompt/new", get(add_prompt))
         .route("/prompt/{prompt_id}", get(specific_prompt))
         .with_state(pool);
 
