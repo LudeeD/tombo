@@ -32,3 +32,10 @@ pub struct PromptSummary {
     pub description: String,
     pub upvotes: Option<i64>,
 }
+
+#[derive(Debug, sqlx::Type)]
+pub struct NewUser {
+    pub email: String,
+    pub name: String,
+    pub password: String,
+}
