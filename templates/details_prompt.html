@@ -1,64 +1,479 @@
-{% extends "layout.html" %} {% block content %}
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tambo Tower - Prompt Detail (HN-Style Comments)</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        // Add custom theme extensions here
+                    },
+                },
+            };
+        </script>
+        <style type="text/tailwindcss">
+            /* Custom component-like class for tags */
+            .tag-custom {
+                @apply inline-block bg-yellow-100 border border-yellow-300 text-yellow-800 text-xs px-2 py-0.5 rounded ml-1 align-middle transition-colors hover:bg-yellow-200 hover:border-yellow-400;
+            }
+            /* Styling for user navigation links */
+            .user-nav-link {
+                @apply text-gray-500 hover:text-gray-800 text-xs font-medium transition-colors duration-150 ease-in-out;
+            }
+            /* Styling for author links in metadata */
+            .author-link {
+                @apply font-medium text-gray-600 hover:text-gray-800 transition-colors duration-150 ease-in-out;
+            }
+            /* Styling for the prompt action bar */
+            .prompt-action-bar {
+                @apply flex justify-end items-center mb-2 space-x-2;
+            }
+            /* Styling for the prompt content box */
+            .prompt-content-box {
+                @apply bg-gray-50 border border-gray-200 rounded-md p-4 font-mono text-sm whitespace-pre-wrap break-words;
+            }
+            /* Styling for action buttons (like copy) */
+            .action-button {
+                @apply bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-medium py-1 px-2 rounded-md transition-colors duration-150 ease-in-out flex items-center;
+            }
+            /* Styling for icon-only action buttons */
+            .action-button-icon {
+                @apply bg-gray-200 hover:bg-gray-300 text-gray-600 hover:text-gray-800 p-1.5 rounded-md transition-colors duration-150 ease-in-out;
+            }
+            /* Styling for icons within buttons */
+            .button-icon {
+                @apply h-3.5 w-3.5;
+            }
+            .copy-icon {
+                @apply h-3.5 w-3.5 inline-block mr-1 align-middle;
+            }
+            /* Styling for breadcrumbs */
+            .breadcrumb a {
+                @apply text-gray-500 hover:text-gray-700 text-sm transition-colors;
+            }
+            .breadcrumb span {
+                @apply text-gray-400 mx-1 text-sm;
+            }
+            .breadcrumb p {
+                @apply text-gray-700 text-sm font-medium;
+            }
+            /* --- Comment Section Styles --- */
+            .comment-thread {
+                @apply mt-6 space-y-5; /* Space between top-level comments */
+            }
+            .comment {
+                /* Base styling for a comment block */
+            }
+            .comment-meta {
+                @apply text-xs text-gray-500 mb-1;
+            }
+            .comment-meta a {
+                @apply hover:underline; /* Simple hover for links in meta */
+            }
+            .comment-body {
+                @apply text-sm text-gray-800 leading-relaxed;
+            }
+            .comment-actions {
+                @apply text-xs mt-1;
+            }
+            .comment-actions a {
+                @apply text-gray-500 hover:underline mr-2;
+            }
+            /* Style for nested comments (simple indentation) */
+            .comment-reply {
+                @apply ml-6 mt-3 pl-4 border-l border-gray-200; /* Indentation and left border */
+            }
+            .comment-form textarea {
+                @apply w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400;
+            }
+            .comment-form button {
+                @apply mt-2 bg-gray-600 hover:bg-gray-700 text-white text-xs font-medium py-1 px-3 rounded-md transition-colors duration-150 ease-in-out disabled:opacity-50; /* Adjusted button style */
+            }
+        </style>
+    </head>
+    <body class="bg-white text-gray-800 font-sans flex justify-center p-5">
+        <div class="max-w-3xl w-full">
+            <header class="flex justify-between items-center mb-2">
+                <div>
+                    <h1 class="text-2xl font-bold flex items-center">
+                        <a
+                            href="#home"
+                            class="flex items-center text-current no-underline hover:text-gray-700 transition-colors"
+                        >
+                            <span class="mr-2">📚</span> Tambo tower
+                        </a>
+                    </h1>
+                    <p class="text-gray-600 text-sm mt-1">
+                        A collaborative collection of useful prompts
+                    </p>
+                </div>
+                <div class="user-navigation text-right">
+                    <a href="#dashboard" class="user-nav-link">Dashboard</a>
+                    <span class="text-gray-300 mx-1">|</span>
+                    <a href="#settings" class="user-nav-link">Settings</a>
+                    <span class="text-gray-300 mx-1">|</span>
+                    <a href="#signout" class="user-nav-link">Sign Out</a>
+                </div>
+            </header>
 
-<article class="prompt-card" id="prompt-{{ prompt.id }}">
-    <header class="prompt-header">
-        <div class="prompt-header-top">
-            <div class="upvote-wrapper">
-                <form method="post" action="/prompts/{{ prompt.id }}/upvote">
-                    <button
-                        type="submit"
-                        class="upvote-button"
-                        aria-label="Upvote this prompt"
+            <hr class="border-t border-gray-100 my-4" />
+
+            <nav
+                aria-label="Breadcrumb"
+                class="mb-4 breadcrumb flex items-center"
+            >
+                <a href="#home">Home</a>
+                <span>/</span>
+                <a href="#tag-meta">Meta</a>
+                <span>/</span>
+                <p aria-current="page">Prompt Engineer</p>
+            </nav>
+
+            <main>
+                <article class="flex items-start mb-8">
+                    <div
+                        class="flex flex-col items-center mr-4 text-sm text-gray-500 w-8 pt-1"
                     >
-                        ▲
-                    </button>
-                    <span class="upvote-count">69</span>
-                </form>
-            </div>
-            <h2 class="prompt-title">{{ prompt.title }}</h2>
+                        <span
+                            class="upvote cursor-pointer text-gray-400 hover:text-gray-700 leading-none transition-transform duration-100 ease-in-out transform hover:scale-110 mb-1"
+                            title="Upvote"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-4 w-4 inline-block"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M5 15l7-7 7 7"
+                                />
+                            </svg>
+                        </span>
+                        <span class="vote-count font-medium text-gray-700"
+                            >72</span
+                        >
+                        <span
+                            class="downvote cursor-pointer text-gray-400 hover:text-gray-700 leading-none transition-transform duration-100 ease-in-out transform hover:scale-110 mt-1"
+                            title="Downvote"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-4 w-4 inline-block"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M19 9l-7 7-7-7"
+                                />
+                            </svg>
+                        </span>
+                    </div>
+
+                    <div class="flex-1">
+                        <h2 class="text-xl font-semibold mb-1">
+                            Prompt Engineer
+                        </h2>
+                        <p class="text-xs text-gray-500 mb-3">
+                            by
+                            <a href="#profile-charlie" class="author-link"
+                                >Charlie</a
+                            >
+                            | May 11, 2025 6:58 PM |
+                            <a
+                                href="#comments"
+                                class="text-gray-600 hover:underline"
+                                >5 comments</a
+                            >
+                        </p>
+                        <div class="tags-container mb-4">
+                            <a href="#tag-meta" class="tag-custom">Meta</a>
+                            <a href="#tag-prompt" class="tag-custom">Prompt</a>
+                        </div>
+
+                        <div class="prompt-action-bar">
+                            <button
+                                class="action-button-icon"
+                                title="Edit Prompt"
+                            >
+                                <svg
+                                    class="button-icon"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
+                                    />
+                                </svg>
+                            </button>
+                            <button
+                                class="action-button-icon"
+                                title="Share Prompt"
+                            >
+                                <svg
+                                    class="button-icon"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"
+                                    />
+                                </svg>
+                            </button>
+                            <button
+                                id="copy-btn"
+                                onclick="copyPrompt()"
+                                class="action-button"
+                                title="Copy Prompt"
+                            >
+                                <svg
+                                    class="copy-icon"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 4.625v-3.375m0 0c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 4.625h3.375"
+                                    />
+                                </svg>
+                                <span class="copy-text">Copy</span>
+                            </button>
+                        </div>
+
+                        <div class="prompt-content-box">
+                            <pre
+                                id="prompt-text"
+                                class="whitespace-pre-wrap break-words"
+                            >
+Act as a Prompt Engineer.
+Your task is to refine the following user prompt to make it more effective for a large language model (LLM).
+
+User Prompt: "Tell me about dogs."
+
+Refined Prompt Goal: Generate a comprehensive overview covering dog breeds, care, and history, suitable for a general audience.
+
+Considerations:
+- Clarity and Specificity
+- Desired Output Format
+- Target Audience
+- Key Information to Include
+
+Provide the refined prompt below:
+                        </pre
+                            >
+                        </div>
+                    </div>
+                </article>
+
+                <section id="comments" class="pt-6 border-t border-gray-100">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-700">
+                        Comments
+                    </h3>
+
+                    <div class="comment-form mb-6">
+                        <textarea
+                            id="comment-textarea"
+                            class="w-full"
+                            rows="3"
+                            placeholder="Add your comment..."
+                        ></textarea>
+                        <button id="post-comment-btn" class="mt-2" disabled>
+                            Post Comment
+                        </button>
+                    </div>
+
+                    <div class="comment-thread">
+                        <div class="comment">
+                            <div class="comment-meta">
+                                <a href="#profile-alice" class="author-link"
+                                    >Alice</a
+                                >
+                                <span class="mx-1">•</span>
+                                <a href="#comment-1-permalink" title="Permalink"
+                                    >May 11, 2025 7:15 PM</a
+                                >
+                            </div>
+                            <div class="comment-body">
+                                <p>
+                                    This is a great starting point for prompt
+                                    refinement! I like how you broke down the
+                                    considerations.
+                                </p>
+                            </div>
+                            <div class="comment-actions">
+                                <a href="#reply-to-1">reply</a>
+                            </div>
+
+                            <div class="comment-reply">
+                                <div class="comment">
+                                    <div class="comment-meta">
+                                        <a
+                                            href="#profile-charlie"
+                                            class="author-link"
+                                            >Charlie</a
+                                        >
+                                        <span class="text-blue-600 text-xs"
+                                            >(Author)</span
+                                        >
+                                        <span class="mx-1">•</span>
+                                        <a
+                                            href="#comment-1a-permalink"
+                                            title="Permalink"
+                                            >May 11, 2025 7:30 PM</a
+                                        >
+                                    </div>
+                                    <div class="comment-body">
+                                        <p>
+                                            Thanks, Alice! Glad you found it
+                                            helpful.
+                                        </p>
+                                    </div>
+                                    <div class="comment-actions">
+                                        <a href="#reply-to-1a">reply</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="comment">
+                            <div class="comment-meta">
+                                <a href="#profile-bob" class="author-link"
+                                    >Bob</a
+                                >
+                                <span class="mx-1">•</span>
+                                <a href="#comment-2-permalink" title="Permalink"
+                                    >May 11, 2025 8:00 PM</a
+                                >
+                            </div>
+                            <div class="comment-body">
+                                <p>
+                                    Could you also consider adding constraints
+                                    like word count or desired tone (e.g.,
+                                    formal, casual)? That often helps guide the
+                                    LLM.
+                                </p>
+                            </div>
+                            <div class="comment-actions">
+                                <a href="#reply-to-2">reply</a>
+                            </div>
+                        </div>
+
+                        <div class="comment">
+                            <div class="comment-meta">
+                                <a href="#profile-eve" class="author-link"
+                                    >Eve</a
+                                >
+                                <span class="mx-1">•</span>
+                                <a href="#comment-3-permalink" title="Permalink"
+                                    >May 12, 2025 9:00 AM</a
+                                >
+                            </div>
+                            <div class="comment-body">
+                                <p>
+                                    What about negative constraints? Specifying
+                                    what *not* to include can be just as
+                                    important sometimes.
+                                </p>
+                            </div>
+                            <div class="comment-actions">
+                                <a href="#reply-to-3">reply</a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <footer
+                class="text-center mt-12 pt-6 border-t border-gray-100 text-sm text-gray-400"
+            >
+                Tambo Tower by Ludeed • 2025
+            </footer>
         </div>
-        <p class="prompt-meta">Category: Demo</p>
-    </header>
 
-    <div class="prompt-copy-row">
-        <button
-            disabled
-            class="copy-button"
-            onclick="copyPrompt('{{ prompt.id }}')"
-        >
-            Share
-        </button>
-        <button
-            class="copy-button"
-            onclick="copyPrompt('{{ prompt.id }}', this)"
-        >
-            Copy
-        </button>
-    </div>
-    <pre id="prompt-content-{{ prompt.id }}" class="prompt-content">
-{{ prompt.content }}</pre
-    >
+        <script>
+            // Copy prompt function (no changes needed)
+            function copyPrompt() {
+                const promptText =
+                    document.getElementById("prompt-text").innerText;
+                const button = document.getElementById("copy-btn");
+                const buttonText = button.querySelector(".copy-text");
 
-    <footer class="prompt-footer">
-        <small>Added on {{ prompt.updated_at }}</small>
-        <small>By: {{ prompt.created_by }}</small>
-    </footer>
-</article>
+                navigator.clipboard
+                    .writeText(promptText)
+                    .then(() => {
+                        buttonText.innerText = "Copied!";
+                        button.classList.add(
+                            "bg-green-200",
+                            "hover:bg-green-300",
+                            "text-green-800",
+                        );
+                        button.classList.remove(
+                            "bg-gray-200",
+                            "hover:bg-gray-300",
+                            "text-gray-700",
+                        );
 
-<script>
-    function copyPrompt(id, button) {
-        const content = document.getElementById(`prompt-content-${id}`);
-        if (!content) return;
+                        setTimeout(() => {
+                            buttonText.innerText = "Copy";
+                            button.classList.remove(
+                                "bg-green-200",
+                                "hover:bg-green-300",
+                                "text-green-800",
+                            );
+                            button.classList.add(
+                                "bg-gray-200",
+                                "hover:bg-gray-300",
+                                "text-gray-700",
+                            );
+                        }, 2000);
+                    })
+                    .catch((err) => {
+                        console.error("Failed to copy text: ", err);
+                        buttonText.innerText = "Error";
+                        setTimeout(() => {
+                            buttonText.innerText = "Copy";
+                        }, 2000);
+                    });
+            }
 
-        const text = content.innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            const originalText = button.innerText;
-            button.innerText = "Copied!";
-            setTimeout(() => {
-                button.innerText = originalText;
-            }, 2000);
-        });
-    }
-</script>
+            // Enable comment button only when textarea has content
+            const commentTextArea = document.getElementById("comment-textarea");
+            const postCommentButton =
+                document.getElementById("post-comment-btn");
 
-{% endblock %}
+            if (commentTextArea && postCommentButton) {
+                commentTextArea.addEventListener("input", () => {
+                    if (commentTextArea.value.trim().length > 0) {
+                        postCommentButton.disabled = false;
+                    } else {
+                        postCommentButton.disabled = true;
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

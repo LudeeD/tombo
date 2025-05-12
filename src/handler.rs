@@ -33,9 +33,7 @@ pub struct AddPromptTemplate {}
 
 #[derive(Template)]
 #[template(path = "details_prompt.html")]
-pub struct PromptRowTemplate {
-    prompt: PromptRow,
-}
+pub struct PromptRowTemplate {}
 
 pub async fn index(State(pool): State<PgPool>) -> impl IntoResponse {
     let rows: Vec<PromptSummary> = sqlx::query_as!(
@@ -69,27 +67,7 @@ pub async fn specific_prompt(
     State(pool): State<PgPool>,
     Path(prompt_id): Path<Uuid>,
 ) -> impl IntoResponse {
-    let prompt: PromptRow = sqlx::query_as!(
-        PromptRow,
-        "SELECT
-                id,
-                created_by,
-                parent_id,
-                title,
-                description,
-                content,
-                visibility AS \"visibility: PromptVisibility\",
-                created_at,
-                updated_at
-            FROM prompts
-            WHERE prompts.id = $1",
-        prompt_id
-    )
-    .fetch_one(&pool)
-    .await
-    .unwrap();
-
-    let template = PromptRowTemplate { prompt };
+    let template = PromptRowTemplate {};
     Html(template.render().expect("Failed to render prompt row"))
 }
 

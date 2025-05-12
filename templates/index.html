@@ -1,71 +1,320 @@
-{% extends "layout.html" %} {% block content %}
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tambo Tower - Home (With Author Links)</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        // Add custom theme extensions here
+                    },
+                },
+            };
+        </script>
+        <style type="text/tailwindcss">
+            /* Custom component-like class for tags */
+            .tag-custom {
+                @apply inline-block bg-yellow-100 border border-yellow-300 text-yellow-800 text-xs px-2 py-0.5 rounded ml-2 align-middle;
+            }
+            /* Styling for navigation links */
+            .nav-link {
+                @apply text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 ease-in-out;
+            }
+            .nav-link-active {
+                /* Style for the currently active nav link */
+                @apply text-gray-900 font-semibold bg-gray-50 px-3 py-2 rounded-md text-sm; /* Example active style */
+            }
+            .user-nav-link {
+                @apply text-gray-500 hover:text-gray-800 text-xs font-medium transition-colors duration-150 ease-in-out;
+            }
+            /* Remove default link styling from prompt titles */
+            .prompt-link {
+                @apply text-current no-underline hover:underline; /* Inherit color, remove default underline, add underline on hover */
+            }
+            /* Styling for author links in metadata */
+            .author-link {
+                @apply font-medium text-gray-600 hover:text-gray-800 transition-colors duration-150 ease-in-out; /* Slightly bolder/darker than meta text */
+            }
+        </style>
+    </head>
+    <body class="bg-white text-gray-800 font-sans flex justify-center p-5">
+        <div class="max-w-3xl w-full">
+            <header class="flex justify-between items-center mb-2">
+                <div>
+                    <h1 class="text-2xl font-bold flex items-center">
+                        <span class="mr-2">📚</span> Tombo tower
+                    </h1>
+                    <p class="text-gray-600 text-sm mt-1">
+                        A collaborative collection of useful prompts
+                    </p>
+                </div>
+                <div class="user-navigation text-right">
+                    <a href="#dashboard" class="user-nav-link">Dashboard</a>
+                    <span class="text-gray-300 mx-1">|</span>
+                    <a href="#settings" class="user-nav-link">Settings</a>
+                    <span class="text-gray-300 mx-1">|</span>
+                    <a href="#signout" class="user-nav-link">Sign Out</a>
+                </div>
+            </header>
 
-<div
-    style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        padding: 10px 0;
-    "
->
-    <form
-        hx-post="/prompts"
-        hx-target="tbody"
-        hx-swap="beforeend"
-        style="display: flex; border: 1px solid #ccc; background-color: #f5f5f5"
-    >
-        <input
-            name="search"
-            placeholder="Search prompts..."
-            required
-            style="
-                border: none;
-                padding: 8px 12px;
-                font-family: monospace;
-                outline: none;
-                min-width: 200px;
-            "
-        />
-        <button
-            type="submit"
-            style="
-                border: none;
-                padding: 8px 16px;
-                background-color: #e0e0e0;
-                font-family: monospace;
-                cursor: pointer;
-            "
-        >
-            Search
-        </button>
-    </form>
+            <nav class="mb-6 mt-2 py-2 flex justify-between items-center">
+                <div>
+                    <a href="#new" class="nav-link-active">New</a>
+                    <a href="#trending" class="nav-link">Trending</a>
+                    <a href="#categories" class="nav-link">Categories</a>
+                    <a href="#search" class="nav-link">Search</a>
+                </div>
+                <div>
+                    <button
+                        class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-1.5 px-3 rounded-md transition-colors duration-150 ease-in-out"
+                    >
+                        + Add Prompt
+                    </button>
+                </div>
+            </nav>
 
-    <a href="/prompt/new">+ Add Prompt</a>
-</div>
+            <hr class="border-t border-gray-100 my-4" />
 
-<div class="prompt-list">
-    {% for p in prompts %}
-    <div
-        style="
-            border: 1px solid #ccc;
-            padding: 16px;
-            margin-top: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        "
-        id="prompt-{{ p.id }}"
-    >
-        <div>
-            <div>
-                <a class="" href="/prompt/{{ p.id }}">[view]</a
-                ><span class="prompt-title"> {{ p.title }}</span>
-            </div>
-            <div class="prompt-meta">{{ p.description }}</div>
+            <main class="space-y-6">
+                <div class="prompt-item-container">
+                    <article class="flex items-start">
+                        <div
+                            class="flex flex-col items-center mr-4 text-sm text-gray-500 w-8 pt-1"
+                        >
+                            <span
+                                class="upvote cursor-pointer text-gray-400 hover:text-gray-700 leading-none transition-transform duration-100 ease-in-out transform hover:scale-110"
+                                title="Upvote"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 inline-block"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    stroke-width="2.5"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M5 15l7-7 7 7"
+                                    />
+                                </svg>
+                            </span>
+                            <span class="vote-count mt-1">125</span>
+                        </div>
+                        <div class="flex-1">
+                            <h2 class="text-base font-medium mb-1">
+                                <a href="#prompt-detail-1" class="prompt-link">
+                                    Creative Story Starters</a
+                                >
+                                <span class="tag-custom">Writing</span
+                                ><span class="tag-custom">Creative</span>
+                            </h2>
+                            <p class="text-xs text-gray-500">
+                                by
+                                <a href="#profile-alice" class="author-link"
+                                    >Alice</a
+                                >
+                                | May 12, 2025 09:15 AM | 12 comments
+                            </p>
+                        </div>
+                    </article>
+                    <hr class="border-t border-gray-100 mt-4" />
+                </div>
+
+                <div class="prompt-item-container">
+                    <article class="flex items-start">
+                        <div
+                            class="flex flex-col items-center mr-4 text-sm text-gray-500 w-8 pt-1"
+                        >
+                            <span
+                                class="upvote cursor-pointer text-gray-400 hover:text-gray-700 leading-none transition-transform duration-100 ease-in-out transform hover:scale-110"
+                                title="Upvote"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 inline-block"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    stroke-width="2.5"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M5 15l7-7 7 7"
+                                    />
+                                </svg>
+                            </span>
+                            <span class="vote-count mt-1">98</span>
+                        </div>
+                        <div class="flex-1">
+                            <h2 class="text-base font-medium mb-1">
+                                <a href="#prompt-detail-2" class="prompt-link"
+                                    >20 Questions</a
+                                >
+                                <span class="tag-custom">Game</span>
+                            </h2>
+                            <p class="text-xs text-gray-500">
+                                by
+                                <a href="#profile-bob" class="author-link"
+                                    >Bob</a
+                                >
+                                | May 11, 2025 10:05 PM | 8 comments
+                            </p>
+                        </div>
+                    </article>
+                    <hr class="border-t border-gray-100 mt-4" />
+                </div>
+
+                <div class="prompt-item-container">
+                    <article class="flex items-start">
+                        <div
+                            class="flex flex-col items-center mr-4 text-sm text-gray-500 w-8 pt-1"
+                        >
+                            <span
+                                class="upvote cursor-pointer text-gray-400 hover:text-gray-700 leading-none transition-transform duration-100 ease-in-out transform hover:scale-110"
+                                title="Upvote"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 inline-block"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    stroke-width="2.5"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M5 15l7-7 7 7"
+                                    />
+                                </svg>
+                            </span>
+                            <span class="vote-count mt-1">72</span>
+                        </div>
+                        <div class="flex-1">
+                            <h2 class="text-base font-medium mb-1">
+                                <a href="#prompt-detail-3" class="prompt-link"
+                                    >Prompt Engineer</a
+                                >
+                                <span class="tag-custom">Meta</span
+                                ><span class="tag-custom">Prompt</span>
+                            </h2>
+                            <p class="text-xs text-gray-500">
+                                by
+                                <a href="#profile-charlie" class="author-link"
+                                    >Charlie</a
+                                >
+                                | May 11, 2025 6:58 PM | 5 comments
+                            </p>
+                        </div>
+                    </article>
+                    <hr class="border-t border-gray-100 mt-4" />
+                </div>
+
+                <div class="prompt-item-container">
+                    <article class="flex items-start">
+                        <div
+                            class="flex flex-col items-center mr-4 text-sm text-gray-500 w-8 pt-1"
+                        >
+                            <span
+                                class="upvote cursor-pointer text-gray-400 hover:text-gray-700 leading-none transition-transform duration-100 ease-in-out transform hover:scale-110"
+                                title="Upvote"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 inline-block"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    stroke-width="2.5"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M5 15l7-7 7 7"
+                                    />
+                                </svg>
+                            </span>
+                            <span class="vote-count mt-1">64</span>
+                        </div>
+                        <div class="flex-1">
+                            <h2 class="text-base font-medium mb-1">
+                                <a href="#prompt-detail-4" class="prompt-link"
+                                    >Explain Quantum Computing to a
+                                    5-year-old</a
+                                >
+                                <span class="tag-custom">Education</span
+                                ><span class="tag-custom">Science</span>
+                            </h2>
+                            <p class="text-xs text-gray-500">
+                                by
+                                <a href="#profile-alice" class="author-link"
+                                    >Alice</a
+                                >
+                                | May 10, 2025 02:30 PM | 22 comments
+                            </p>
+                        </div>
+                    </article>
+                    <hr class="border-t border-gray-100 mt-4" />
+                </div>
+
+                <div class="prompt-item-container">
+                    <article class="flex items-start">
+                        <div
+                            class="flex flex-col items-center mr-4 text-sm text-gray-500 w-8 pt-1"
+                        >
+                            <span
+                                class="upvote cursor-pointer text-gray-400 hover:text-gray-700 leading-none transition-transform duration-100 ease-in-out transform hover:scale-110"
+                                title="Upvote"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 inline-block"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    stroke-width="2.5"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M5 15l7-7 7 7"
+                                    />
+                                </svg>
+                            </span>
+                            <span class="vote-count mt-1">50</span>
+                        </div>
+                        <div class="flex-1">
+                            <h2 class="text-base font-medium mb-1">
+                                <a href="#prompt-detail-5" class="prompt-link">
+                                    Midjourney Image Generation Ideas</a
+                                >
+                                <span class="tag-custom">Art</span
+                                ><span class="tag-custom">AI</span
+                                ><span class="tag-custom">Image</span>
+                            </h2>
+                            <p class="text-xs text-gray-500">
+                                by
+                                <a href="#profile-david" class="author-link"
+                                    >David</a
+                                >
+                                | May 09, 2025 11:00 AM | 15 comments
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </main>
+
+            <footer
+                class="text-center mt-12 pt-6 border-t border-gray-100 text-sm text-gray-400"
+            >
+                Tambo Tower by Ludeed • 2025
+            </footer>
         </div>
-        <div class="upvotes">▲ {{ p.upvotes.unwrap_or_default() }}</div>
-    </div>
-    {% endfor %}
-</div>
-{% endblock %}
+    </body>
+</html>
