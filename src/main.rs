@@ -5,16 +5,21 @@ mod types;
 
 use axum::{routing::get, Router};
 use handler::{add_prompt, index, specific_prompt};
+use sea_orm::Database;
 use tracing::info;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
 
-    // check size of /var/lib/data
-    let data_dir = "/var/lib/data";
-    let data_size = std::fs::metadata(data_dir);
-    info!("Metadata: {:?}", data_size);
+    let db = if String::from("PROD") == std::env::var("ENV").unwrap_or_default() {
+        info!("Running in production mode");
+        Database::connect("sqlite:///var/lib/data/db.sqlite?mode=rwc").await?
+    } else {
+        Database::connect("sqlite://db.sqlite?mode=rwc").await?
+    };
+
+    assert!(db.ping().await.is_ok());
 
     let app = Router::new()
         .route("/", get(index))
@@ -30,4 +35,6 @@ async fn main() {
     info!("Starting server...");
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
+
+    Ok(())
 }
