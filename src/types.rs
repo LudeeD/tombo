@@ -1,3 +1,4 @@
+use axum::Form;
 use serde::{Deserialize, Serialize};
 use sqlx::types::time::OffsetDateTime;
 use uuid::Uuid;
@@ -38,4 +39,16 @@ pub struct NewUser {
     pub email: String,
     pub name: String,
     pub password: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct NewPromptForm {
+    #[serde(rename = "prompt-title")]
+    pub title: String,
+    #[serde(rename = "prompt-text")]
+    pub content: String,
+    #[serde(rename = "prompt-tags")]
+    pub tags: Option<String>,
+    #[serde(rename = "prompt-description")]
+    pub description: Option<String>,
 }

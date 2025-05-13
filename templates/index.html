@@ -34,6 +34,23 @@
         @apply text-xs text-gray-700 font-medium;
     }
 </style>
+{% endblock %} {% block navigation %}
+<nav class="mb-6 mt-2 py-2 flex justify-between items-center px-6">
+    <div>
+        <a href="#new" class="nav-link-active">New</a>
+        <a href="#trending" class="nav-link">Trending</a>
+        <a href="#categories" class="nav-link">Categories</a>
+        <a href="#search" class="nav-link">Search</a>
+    </div>
+    <div>
+        <button
+            class="bg-stone-500 hover:bg-stone-600 text-white border border-stone-700 text-sm font-medium py-1.5 px-3 transition-colors duration-150 ease-in-out"
+        >
+            + Add Prompt
+        </button>
+    </div>
+</nav>
+
 {% endblock %} {% block content %}
 <div class="prompt-item-container">
     <article class="flex items-start">

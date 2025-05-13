@@ -1,160 +1,89 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Tambo Tower - Create New Prompt (Minimal Style)</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        borderRadius: {
-                            // Customizing border radius
-                            sm: "0.125rem", // Smaller radius
-                            DEFAULT: "0.25rem",
-                            md: "0.375rem",
-                            lg: "0.5rem",
-                            none: "0", // No radius
-                        },
-                    },
-                },
-            };
-        </script>
-        <style type="text/tailwindcss">
-            /* Reusing base styles */
-            .user-nav-link {
-                @apply text-gray-500 hover:text-gray-800 text-xs font-medium transition-colors duration-150 ease-in-out;
-            }
-            /* Simplified Form Styles */
-            .form-label {
-                @apply block text-sm font-medium text-gray-700 mb-1;
-            }
-            .form-input {
-                /* Minimal rounding, softer border */
-                @apply block w-full px-3 py-2 border border-gray-300 rounded-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm;
-            }
-            .form-textarea {
-                /* Minimal rounding, softer border */
-                @apply block w-full px-3 py-2 border border-gray-300 rounded-sm shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm;
-            }
-            .form-help-text {
-                @apply text-xs text-gray-500 mt-1;
-            }
-            .form-submit-button {
-                /* Simple button style, minimal rounding */
-                @apply inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500 transition-colors;
-            }
-            /* Simple horizontal rule */
-            hr.form-separator {
-                @apply border-t border-gray-200 my-6; /* Lighter separator */
-            }
-        </style>
-    </head>
-    <body class="bg-white text-gray-800 font-sans flex justify-center p-5">
-        <div class="max-w-3xl w-full">
-            <header class="flex justify-between items-center mb-2">
-                <div>
-                    <h1 class="text-2xl font-bold flex items-center">
-                        <a
-                            href="#home"
-                            class="flex items-center text-current no-underline hover:text-gray-700 transition-colors"
-                        >
-                            <span class="mr-2">📚</span> Tambo tower
-                        </a>
-                    </h1>
-                    <p class="text-gray-600 text-sm mt-1">
-                        A collaborative collection of useful prompts
-                    </p>
-                </div>
-                <div class="user-navigation text-right">
-                    <a href="#dashboard" class="user-nav-link">Dashboard</a>
-                    <span class="text-gray-300 mx-1">|</span>
-                    <a href="#settings" class="user-nav-link">Settings</a>
-                    <span class="text-gray-300 mx-1">|</span>
-                    <a href="#signout" class="user-nav-link">Sign Out</a>
-                </div>
-            </header>
+{% extends "layout.html" %} {% block head %}
+<style type="text/tailwindcss">
+    /* Header navigation link style */
+    .user-nav-link-header {
+        @apply text-stone-300 hover:text-white text-xs font-medium transition-colors duration-150 ease-in-out;
+    }
 
-            <hr class="border-t border-gray-200 my-4" />
+    /* Form Styles for Brutalist Theme */
+    .form-label {
+        @apply block text-sm font-medium text-gray-700 mb-1;
+    }
+    .form-input,
+    .form-textarea {
+        /* No rounded corners, consistent border, focus state */
+        @apply block w-full px-3 py-2 border border-gray-400 shadow-sm placeholder-gray-400
+                       focus:outline-none focus:ring-1 focus:ring-stone-500 focus:border-stone-500 sm:text-sm;
+        border-radius: 0; /* Explicitly set no border radius */
+    }
+    .form-help-text {
+        @apply text-xs text-gray-500 mt-1;
+    }
+    .form-submit-button {
+        /* Styled like the "+ Add Prompt" button from home page */
+        @apply inline-flex justify-center py-2 px-4 border border-stone-700 shadow-sm text-sm font-medium text-white bg-stone-500 hover:bg-stone-600
+                       focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-stone-500 transition-colors;
+        border-radius: 0; /* Explicitly set no border radius */
+    }
+</style>
 
-            <main>
-                <h2 class="text-xl font-semibold text-gray-800 mb-6">
-                    Create a New Prompt
-                </h2>
-                <form action="#submit-prompt" method="POST" class="space-y-5">
-                    <div>
-                        <label for="prompt-title" class="form-label"
-                            >Title</label
-                        >
-                        <input
-                            type="text"
-                            id="prompt-title"
-                            name="prompt-title"
-                            class="form-input"
-                            placeholder="A clear and concise title"
-                            required
-                        />
-                    </div>
+{% endblock %} {% block content %}
+<h2 class="text-xl font-semibold text-gray-800 mb-6">Create a New Prompt</h2>
+<form action="/prompt/new" method="POST" class="space-y-5">
+    <div>
+        <label for="prompt-title" class="form-label">Title</label>
+        <input
+            type="text"
+            id="prompt-title"
+            name="prompt-title"
+            class="form-input"
+            placeholder="A clear and concise title"
+            required
+        />
+    </div>
 
-                    <div>
-                        <label for="prompt-text" class="form-label"
-                            >Prompt Text</label
-                        >
-                        <textarea
-                            id="prompt-text"
-                            name="prompt-text"
-                            rows="10"
-                            class="form-textarea font-mono text-sm"
-                            placeholder="Enter the full text of your prompt here..."
-                            required
-                        ></textarea>
-                        <p class="form-help-text">
-                            The core content of the prompt.
-                        </p>
-                    </div>
+    <div>
+        <label for="prompt-text" class="form-label">Prompt Text</label>
+        <textarea
+            id="prompt-text"
+            name="prompt-text"
+            rows="10"
+            class="form-textarea font-mono text-sm"
+            placeholder="Enter the full text of your prompt here..."
+            required
+        ></textarea>
+        <p class="form-help-text">The core content of the prompt.</p>
+    </div>
 
-                    <div>
-                        <label for="prompt-tags" class="form-label">Tags</label>
-                        <input
-                            type="text"
-                            id="prompt-tags"
-                            name="prompt-tags"
-                            class="form-input"
-                            placeholder="e.g., Writing, Code, Fun"
-                        />
-                        <p class="form-help-text">Comma-separated tags.</p>
-                    </div>
+    <div>
+        <label for="prompt-tags" class="form-label">Tags</label>
+        <input
+            type="text"
+            id="prompt-tags"
+            name="prompt-tags"
+            class="form-input"
+            placeholder="e.g., Writing, Code, Fun"
+        />
+        <p class="form-help-text">Comma-separated tags.</p>
+    </div>
 
-                    <div>
-                        <label for="prompt-description" class="form-label"
-                            >Description / Notes
-                            <span class="text-gray-400 font-normal"
-                                >(Optional)</span
-                            ></label
-                        >
-                        <textarea
-                            id="prompt-description"
-                            name="prompt-description"
-                            rows="4"
-                            class="form-textarea"
-                            placeholder="Add any extra context or usage instructions..."
-                        ></textarea>
-                    </div>
+    <div>
+        <label for="prompt-description" class="form-label"
+            >Description / Notes
+            <span class="text-gray-400 font-normal">(Optional)</span>
+        </label>
+        <textarea
+            id="prompt-description"
+            name="prompt-description"
+            rows="4"
+            class="form-textarea"
+            placeholder="Add any extra context or usage instructions..."
+        ></textarea>
+    </div>
 
-                    <div class="pt-4 flex justify-start">
-                        <button type="submit" class="form-submit-button">
-                            Submit Prompt
-                        </button>
-                    </div>
-                </form>
-            </main>
+    <div class="pt-4 flex justify-start">
+        <button type="submit" class="form-submit-button">Submit Prompt</button>
+    </div>
+</form>
 
-            <footer
-                class="text-center mt-12 pt-6 border-t border-gray-100 text-sm text-gray-400"
-            >
-                Tambo Tower by Ludeed • 2025
-            </footer>
-        </div>
-    </body>
-</html>
+{% endblock %}

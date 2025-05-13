@@ -9,7 +9,7 @@ use axum::{
     Router,
 };
 use entity::prompt::Entity as Prompt;
-use handler::{add_prompt, index, specific_prompt};
+use handler::{add_prompt, handle_add_prompt, index, specific_prompt};
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{Database, EntityTrait};
 use tower_http::services::ServeDir;
@@ -36,8 +36,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/", get(index))
         .route("/js/htmx.min.js", get(public::htmx))
         .route("/style.css", get(public::css))
-        .route("/prompt/new", get(add_prompt))
-        .route("/prompt/{prompt_id}", get(specific_prompt));
+        .route("/prompt/new", get(add_prompt).post(handle_add_prompt))
+        .route("/prompt/{prompt_id}", get(specific_prompt))
+        .with_state(db);
 
     info!("Starting server...");
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
