@@ -3,9 +3,16 @@ mod handler;
 mod public;
 mod types;
 
-use axum::{routing::get, Router};
+use axum::{
+    response::IntoResponse,
+    routing::{get, get_service, post},
+    Router,
+};
+use entity::prompt::Entity as Prompt;
 use handler::{add_prompt, index, specific_prompt};
-use sea_orm::Database;
+use migration::{Migrator, MigratorTrait};
+use sea_orm::{Database, EntityTrait};
+use tower_http::services::ServeDir;
 use tracing::info;
 
 #[tokio::main]
@@ -21,12 +28,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     assert!(db.ping().await.is_ok());
 
+    Migrator::up(&db, None).await?;
+
+    let prompts = Prompt::find().all(&db).await?;
+
     let app = Router::new()
         .route("/", get(index))
-        // .route("/login", get(login_page))
-        // .route("/signup", get(signup_page).post(handle_signup))
-        // .route("/discover", get(index))
-        // .route("/dashboard", get(index))
         .route("/js/htmx.min.js", get(public::htmx))
         .route("/style.css", get(public::css))
         .route("/prompt/new", get(add_prompt))
