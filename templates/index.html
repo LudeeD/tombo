@@ -51,7 +51,7 @@
     </div>
 </nav>
 
-{% endblock %} {% block content %}
+{% endblock %} {% block content %} {% for prompt in prompts %}
 <div class="prompt-item-container">
     <article class="flex items-start">
         <div class="mr-3 pt-1">
@@ -77,170 +77,17 @@
         <div class="flex-1">
             <h2 class="text-base font-medium mb-1">
                 <a href="#prompt-detail-1" class="prompt-link"
-                    >Creative Story Starters</a
+                    >{{ prompt.title }}</a
                 >
                 <span class="tag-custom">Writing</span
                 ><span class="tag-custom">Creative</span>
             </h2>
             <p class="text-xs text-gray-500">
-                by <a href="#profile-alice" class="author-link">Alice</a> | May
-                12, 2025 09:15 AM | 12 comments
+                by <a href="#profile-alice" class="author-link">Alice</a> | {{
+                prompt.created_at.to_rfc2822() }} | 12 comments
             </p>
         </div>
     </article>
     <hr class="border-t border-gray-200 mt-4" />
 </div>
-
-<div class="prompt-item-container">
-    <article class="flex items-start">
-        <div class="mr-3 pt-1">
-            <a
-                href="#prompt-detail-2"
-                class="star-button-link"
-                title="View prompt & Star"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z"
-                        clip-rule="evenodd"
-                    />
-                </svg>
-                <span class="star-count">98</span>
-            </a>
-        </div>
-        <div class="flex-1">
-            <h2 class="text-base font-medium mb-1">
-                <a href="#prompt-detail-2" class="prompt-link">20 Questions</a>
-                <span class="tag-custom">Game</span>
-            </h2>
-            <p class="text-xs text-gray-500">
-                by <a href="#profile-bob" class="author-link">Bob</a> | May 11,
-                2025 10:05 PM | 8 comments
-            </p>
-        </div>
-    </article>
-    <hr class="border-t border-gray-200 mt-4" />
-</div>
-
-<div class="prompt-item-container">
-    <article class="flex items-start">
-        <div class="mr-3 pt-1">
-            <a
-                href="#prompt-detail-3"
-                class="star-button-link"
-                title="View prompt & Star"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z"
-                        clip-rule="evenodd"
-                    />
-                </svg>
-                <span class="star-count">72</span>
-            </a>
-        </div>
-        <div class="flex-1">
-            <h2 class="text-base font-medium mb-1">
-                <a href="#prompt-detail-3" class="prompt-link"
-                    >Prompt Engineer</a
-                >
-                <span class="tag-custom">Meta</span
-                ><span class="tag-custom">Prompt</span>
-            </h2>
-            <p class="text-xs text-gray-500">
-                by <a href="#profile-charlie" class="author-link">Charlie</a> |
-                May 11, 2025 6:58 PM | 5 comments
-            </p>
-        </div>
-    </article>
-    <hr class="border-t border-gray-200 mt-4" />
-</div>
-
-<div class="prompt-item-container">
-    <article class="flex items-start">
-        <div class="mr-3 pt-1">
-            <a
-                href="#prompt-detail-4"
-                class="star-button-link"
-                title="View prompt & Star"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z"
-                        clip-rule="evenodd"
-                    />
-                </svg>
-                <span class="star-count">64</span>
-            </a>
-        </div>
-        <div class="flex-1">
-            <h2 class="text-base font-medium mb-1">
-                <a href="#prompt-detail-4" class="prompt-link"
-                    >Explain Quantum Computing to a 5-year-old</a
-                >
-                <span class="tag-custom">Education</span
-                ><span class="tag-custom">Science</span>
-            </h2>
-            <p class="text-xs text-gray-500">
-                by <a href="#profile-alice" class="author-link">Alice</a> | May
-                10, 2025 02:30 PM | 22 comments
-            </p>
-        </div>
-    </article>
-    <hr class="border-t border-gray-200 mt-4" />
-</div>
-
-<div class="prompt-item-container">
-    <article class="flex items-start">
-        <div class="mr-3 pt-1">
-            <a
-                href="#prompt-detail-5"
-                class="star-button-link"
-                title="View prompt & Star"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.007z"
-                        clip-rule="evenodd"
-                    />
-                </svg>
-                <span class="star-count">50</span>
-            </a>
-        </div>
-        <div class="flex-1">
-            <h2 class="text-base font-medium mb-1">
-                <a href="#prompt-detail-5" class="prompt-link"
-                    >Midjourney Image Generation Ideas</a
-                >
-                <span class="tag-custom">Art</span
-                ><span class="tag-custom">AI</span
-                ><span class="tag-custom">Image</span>
-            </h2>
-            <p class="text-xs text-gray-500">
-                by <a href="#profile-david" class="author-link">David</a> | May
-                09, 2025 11:00 AM | 15 comments
-            </p>
-        </div>
-    </article>
-</div>
-{% endblock %}
+{% endfor %} {% endblock %}

@@ -11,7 +11,8 @@ use axum::{
     response::{Html, IntoResponse},
 };
 use chrono::Utc;
-use entity::prompt;
+use entity::prompt::{self, Entity as Prompt};
+use sea_orm::EntityTrait;
 use sea_orm::{prelude::ChronoDateTimeUtc, ActiveModelTrait};
 use sea_orm::{ActiveValue::Set, DatabaseConnection};
 use serde::Deserialize;
@@ -24,7 +25,9 @@ use uuid::Uuid;
 
 #[derive(Template)]
 #[template(path = "index.html")]
-pub struct IndexTemplate {}
+pub struct IndexTemplate {
+    prompts: Vec<prompt::Model>,
+}
 
 #[derive(Template)]
 #[template(path = "add_prompt.html")]
@@ -34,8 +37,10 @@ pub struct AddPromptTemplate {}
 #[template(path = "details_prompt.html")]
 pub struct PromptRowTemplate {}
 
-pub async fn index() -> impl IntoResponse {
-    let template = IndexTemplate {};
+pub async fn index(State(db): State<DatabaseConnection>) -> impl IntoResponse {
+    let prompts = Prompt::find().all(&db).await.unwrap_or_default();
+
+    let template = IndexTemplate { prompts };
 
     Html(template.render().expect("demo"))
 }
@@ -57,7 +62,11 @@ pub async fn handle_add_prompt(
     // Extract form data, using empty string for optional fields if not provided
     let title = form.title;
     let content = form.content;
-    let description = form.description.unwrap_or_else(|| String::new());
+    let description = form.description.unwrap_or_default();
+
+    let tags = form.tags.unwrap_or_default();
+
+    info!("TODO: implement tags {tags}");
 
     let prompt = prompt::ActiveModel {
         title: Set(title),
@@ -69,7 +78,7 @@ pub async fn handle_add_prompt(
         ..Default::default() // all other attributes are `NotSet`
     };
 
-    let pear: prompt::Model = prompt.insert(&db).await.unwrap();
+    let _prompt: prompt::Model = prompt.insert(&db).await.unwrap();
 
-    "demo"
+    "Success"
 }
