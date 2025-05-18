@@ -1,37 +1,37 @@
 mod db;
 mod handler;
 mod public;
-mod types;
-mod users;
+
+mod prompts;
 
 use axum::{routing::get, Router};
-use handler::{add_prompt, handle_add_prompt, index, specific_prompt};
-use migration::{Migrator, MigratorTrait};
-use sea_orm::Database;
+use db::pool_from_env;
+use handler::{add_prompt, specific_prompt};
+use sqlx::SqlitePool;
 use tracing::info;
+
+#[derive(Clone)]
+struct AppState {
+    pool: SqlitePool,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
 
-    let db = if String::from("PROD") == std::env::var("ENV").unwrap_or_default() {
-        info!("Running in production mode");
-        Database::connect("sqlite:///var/lib/data/db.sqlite?mode=rwc").await?
-    } else {
-        Database::connect("sqlite://db.sqlite?mode=rwc").await?
-    };
+    let pool = pool_from_env().await;
 
-    assert!(db.ping().await.is_ok());
+    sqlx::migrate!("./migrations").run(&pool).await?;
 
-    Migrator::up(&db, None).await?;
+    let state = AppState { pool: pool };
 
     let app = Router::new()
-        .route("/", get(index))
+        .route("/", get(prompts::handlers::list))
         .route("/js/htmx.min.js", get(public::htmx))
         .route("/style.css", get(public::css))
-        .route("/prompt/new", get(add_prompt).post(handle_add_prompt))
+        .route("/prompt/new", get(add_prompt))
         .route("/prompt/{prompt_id}", get(specific_prompt))
-        .with_state(db);
+        .with_state(state);
 
     info!("Starting server...");
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();

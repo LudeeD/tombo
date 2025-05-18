@@ -71,23 +71,30 @@
                         clip-rule="evenodd"
                     />
                 </svg>
-                <span class="star-count">125</span>
+                <span class="star-count">{{ prompt.star_count }}</span>
             </a>
         </div>
         <div class="flex-1">
             <h2 class="text-base font-medium mb-1">
                 <a href="#prompt-detail-1" class="prompt-link"
-                    >{{ prompt.title }}</a
+                    >{{ prompt.row.title }}</a
                 >
-                <span class="tag-custom">Writing</span
-                ><span class="tag-custom">Creative</span>
+                {% for tag in prompt.tags %}
+                <span class="tag-custom">{{ tag.1 }}</span>
+                {% endfor %}
             </h2>
+            <p class="text-xs text-gray-500">{{ prompt.summary }}</p>
             <p class="text-xs text-gray-500">
-                by <a href="#profile-alice" class="author-link">Alice</a> | {{
-                prompt.created_at.to_rfc2822() }} | 12 comments
+                by
+                <a href="#profile-alice" class="author-link"
+                    >{{ prompt.author_name }}</a
+                >
+                | {{ prompt.row.created_at.unwrap_or_default().format("%Y-%m-%d
+                %H:%M:%S").to_string() }} | {{ prompt.comment_count }} comments
             </p>
         </div>
     </article>
     <hr class="border-t border-gray-200 mt-4" />
 </div>
+
 {% endfor %} {% endblock %}
