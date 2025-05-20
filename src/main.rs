@@ -6,7 +6,7 @@ mod prompts;
 
 use axum::{routing::get, Router};
 use db::pool_from_env;
-use handler::{add_prompt, specific_prompt};
+use handler::add_prompt;
 use sqlx::SqlitePool;
 use tracing::info;
 
@@ -30,7 +30,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/js/htmx.min.js", get(public::htmx))
         .route("/style.css", get(public::css))
         .route("/prompt/new", get(add_prompt))
-        .route("/prompt/{prompt_id}", get(specific_prompt))
+        .route("/prompt/{prompt_id}", get(prompts::handlers::detail))
         .with_state(state);
 
     info!("Starting server...");

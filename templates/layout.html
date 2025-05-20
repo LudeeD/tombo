@@ -4,49 +4,28 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Tombo Tower</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="https://classless.de/classless.css" />
         {% block head %} {% endblock %}
     </head>
-    <body class="bg-amber-50 text-gray-800 font-sans flex justify-center p-5">
-        <div class="max-w-3xl w-full bg-white shadow-lg">
-            <header
-                class="flex justify-between items-center mb-6 p-6 bg-stone-700 text-white"
-            >
-                <div>
-                    <h1 class="text-3xl font-bold flex items-center">
-                        <span class="mr-2">📚</span> Tombo
-                    </h1>
-                    <p class="text-stone-300 text-sm mt-1">
-                        A collaborative collection of useful prompts
-                    </p>
-                </div>
-                <div class="user-navigation text-right">
-                    <a href="#dashboard" class="user-nav-link-header"
-                        >Dashboard</a
-                    >
-                    <span class="text-stone-500 mx-1">|</span>
-                    <a href="#settings" class="user-nav-link-header"
-                        >Settings</a
-                    >
-                    <span class="text-stone-500 mx-1">|</span>
-                    <a href="#signout" class="user-nav-link-header">Sign Out</a>
-                </div>
-            </header>
+    <body>
+        <header>
+            <nav>
+                <ul>
+                    <li><strong>📚 Tombo</strong></li>
+                    {% block navigation %} {% endblock %}
+                    <li class="float-right"><a href="#">Login</a></li>
+                    <li class="float-right"><a href="#">Sign Up</a></li>
+                </ul>
+            </nav>
+        </header>
 
-            {% block navigation %} {% endblock %}
-
-            <hr class="border-t border-gray-200 my-4 mx-6" />
-
-            <main class="space-y-6 px-6 pb-6">
+            <main>
                 {% block content %}
                 <p>Placeholder content</p>
                 {% endblock %}
             </main>
-            <footer
-                class="text-center mt-auto py-6 border-t border-gray-200 text-sm text-gray-400 px-6"
-            >
-                Tombo Tower by Ludeed • 2025
-            </footer>
         </div>
+
+        {% block script %} {% endblock %}
     </body>
 </html>
