@@ -1,26 +1,41 @@
 {% extends "layout.html" %} {% block content %}
-<div class="prompt-form" style="max-width: 400px; margin: 40px auto">
-    <div class="form-header">
-        <h3>Log In to Tombo</h3>
-    </div>
-    <form method="post" action="/login">
-        {# Adjust action="/login" to your actual login endpoint #}
-        <div class="form-group">
+<div>
+    <h1>Login</h1>
+    <form action="/login" method="POST">
+        {# Adjust action URL as needed #}
+        <div>
             <label for="username">Username or Email</label>
-            <input type="text" id="username" name="username" required />
+            <input
+                type="text"
+                id="username"
+                name="username"
+                required
+                autofocus
+            />
         </div>
-
-        <div class="form-group">
+        <div>
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required />
         </div>
-
-        <div class="form-actions">
-            <button type="submit" class="btn-primary">Log In</button>
-        </div>
-        <div style="margin-top: 16px; text-align: center">
-            <p>Don't have an account? <a href="/signup">Sign up</a></p>
+        <div>
+            <button type="submit">Login</button>
         </div>
     </form>
+    <div>
+        <p><a href="#">Forgot password?</a></p>
+        <p>Don't have an account? <a href="#">Sign Up</a></p>
+        {# Adjust Sign Up link if you have a specific route #}
+    </div>
+    {% for message in messages %} {% if message.level ==
+    axum_messages::Level::Info %}
+    <blockquote class="hint">
+        <p><b>{{ message }}</b></p>
+    </blockquote>
+    {% else %}
+    <blockquote class="warn">
+        <p><b>⚠ {{ message }}</b></p>
+    </blockquote>
+    {% endif %} {% endfor %}
 </div>
-{% endblock %}
+{% endblock %} {% block script %} {# Add any page-specific JavaScript here if
+needed #} {% endblock %}

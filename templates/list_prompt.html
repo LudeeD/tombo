@@ -6,7 +6,8 @@
 <li><a href="#">Categories</a></li>
 <li><a href="#">Search</a></li>
 {% endblock %} {% block content %}
-<button>+ Add prompt</button>
+<h1>New Prompts</h1>
+<p>Hot from the forge <a href="/prompt/new">Add your own!</a></p>
 <ul>
     {% for prompt in prompts %}
     <li>
@@ -22,8 +23,7 @@
         </p>
         <p style="margin-top: 0">
             <time datetime="2025-05-18T20:48:31"
-                >{{ prompt.row.created_at.unwrap_or_default().format("%Y-%m-%d
-                %H:%M:%S").to_string() }}</time
+                >{{ prompt.row.created_at.unwrap() }}</time
             >
             | by <a href="#">{{ prompt.author_name }}</a> |
             <a href="#comments" class="text-secondary"
@@ -31,6 +31,7 @@
             >
         </p>
     </li>
+
     {% endfor %}
 </ul>
 

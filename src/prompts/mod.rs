@@ -1,5 +1,5 @@
-use chrono::NaiveDateTime;
 use sqlx::prelude::FromRow;
+use time::OffsetDateTime;
 
 pub mod handlers;
 pub mod templates;
@@ -10,7 +10,7 @@ pub struct PromptRow {
     pub title: String,
     pub content: String,
     pub description: String,
-    pub created_at: Option<NaiveDateTime>,
+    pub created_at: Option<OffsetDateTime>,
 }
 
 #[derive(Debug)]

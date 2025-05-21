@@ -1,14 +1,24 @@
 mod db;
 mod handler;
-mod public;
-
 mod prompts;
+mod public;
+mod users;
 
 use axum::{routing::get, Router};
+use axum_login::{
+    login_required,
+    tower_sessions::{ExpiredDeletion, Expiry, SessionManagerLayer},
+    AuthManagerLayerBuilder,
+};
+use axum_messages::MessagesManagerLayer;
 use db::pool_from_env;
 use handler::add_prompt;
 use sqlx::SqlitePool;
+use time::Duration;
+use tower_sessions::cookie::Key;
+use tower_sessions_sqlx_store::SqliteStore;
 use tracing::info;
+use users::Backend;
 
 #[derive(Clone)]
 struct AppState {
@@ -23,19 +33,53 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     sqlx::migrate!("./migrations").run(&pool).await?;
 
+    let session_store = SqliteStore::new(pool.clone());
+    session_store.migrate().await?;
+
+    let deletion_task = tokio::task::spawn(
+        session_store
+            .clone()
+            .continuously_delete_expired(tokio::time::Duration::from_secs(60)),
+    );
+
+    let key = Key::generate();
+
+    let session_layer = SessionManagerLayer::new(session_store)
+        .with_secure(false)
+        .with_expiry(Expiry::OnInactivity(Duration::days(1)))
+        .with_signed(key);
+
+    let backend = Backend::new(pool.clone());
+    let auth_layer = AuthManagerLayerBuilder::new(backend, session_layer).build();
+
     let state = AppState { pool: pool };
 
     let app = Router::new()
+        .route("/dashboard", get(prompts::handlers::list))
+        .route("/prompt/new", get(add_prompt))
+        .route_layer(login_required!(Backend, login_url = "/login"))
         .route("/", get(prompts::handlers::list))
         .route("/js/htmx.min.js", get(public::htmx))
         .route("/style.css", get(public::css))
-        .route("/prompt/new", get(add_prompt))
         .route("/prompt/{prompt_id}", get(prompts::handlers::detail))
-        .with_state(state);
+        .route(
+            "/signup",
+            get(users::handlers::get::signup).post(users::handlers::post::signup),
+        )
+        .route(
+            "/login",
+            get(users::handlers::get::login).post(users::handlers::post::login),
+        )
+        .route("/logout", get(users::handlers::get::logout))
+        .with_state(state)
+        .layer(MessagesManagerLayer)
+        .layer(auth_layer);
 
     info!("Starting server...");
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
+
+    deletion_task.await.unwrap().unwrap();
 
     Ok(())
 }

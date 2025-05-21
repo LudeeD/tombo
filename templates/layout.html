@@ -13,9 +13,11 @@
                 <ul>
                     <li><strong>📚 Tombo</strong></li>
                     {% block navigation %} {% endblock %}
-                    <li class="float-right"><a href="#">Login</a></li>
+                    {% block user %}
+                    <li class="float-right"><a href="/login">Login</a></li>
                     <li class="float-right"><a href="#">Sign Up</a></li>
-                </ul>
+                    {% endblock %}
+                    </ul>
             </nav>
         </header>
 
