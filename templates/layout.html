@@ -11,12 +11,9 @@
         <header>
             <nav>
                 <ul>
-                    <li><strong>📚 Tombo</strong></li>
+                    <li><a style="text-decoration: none; color: var(--cfg);" href="/"><strong>📚 Tombo</strong></a></li>
                     {% block navigation %} {% endblock %}
-                    {% block user %}
-                    <li class="float-right"><a href="/login">Login</a></li>
-                    <li class="float-right"><a href="#">Sign Up</a></li>
-                    {% endblock %}
+                    {% block user %} {% endblock %}
                     </ul>
             </nav>
         </header>

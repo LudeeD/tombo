@@ -1,11 +1,16 @@
 {% extends "layout.html" %} {% block navigation %}
 <li>
-    <a href="#"><strong>New</strong></a>
+    <a href="/new"><strong>New</strong></a>
 </li>
-<li><a href="#">Trending</a></li>
-<li><a href="#">Categories</a></li>
-<li><a href="#">Search</a></li>
-{% endblock %} {% block content %}
+<li><a href="/trending">Trending</a></li>
+<li><a href="/categories">Categories</a></li>
+<li><a href="/search">Search</a></li>
+{% endblock %} {% block user %} {% if user_logged_in %}
+<li class="float-right"><a href="/dashboard">Dashboard 🤭</a></li>
+{% else %}
+<li class="float-right"><a href="/login">Login</a></li>
+<li class="float-right"><a href="/signup">Sign Up</a></li>
+{% endif %} {% endblock %} {% block content %}
 <h1>New Prompts</h1>
 <p>Hot from the forge <a href="/prompt/new">Add your own!</a></p>
 <ul>

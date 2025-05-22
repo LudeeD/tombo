@@ -1,28 +1,35 @@
 {% extends "layout.html" %} {% block navigation %}
 <li>
-    <a href="#">New</a>
+    <a href="/new"><strong>New</strong></a>
 </li>
-<li><a href="#">Trending</a></li>
-<li><a href="#">Categories</a></li>
-<li><a href="#">Search</a></li>
-{% endblock %} {% block content %}
+<li><a href="/trending">Trending</a></li>
+<li><a href="/categories">Categories</a></li>
+<li><a href="/search">Search</a></li>
+{% endblock %} {% block user %} {% if user_logged_in %}
+<li class="float-right"><a href="/dashboard">Dashboard 🤭</a></li>
+{% else %}
+<li class="float-right"><a href="/login">Login</a></li>
+<li class="float-right"><a href="/signup">Sign Up</a></li>
+{% endif %} {% endblock %} {% block content %}
 <header>
-    <h1>The Enigmatic City of Aethelgard</h1>
+    <h1>{{ prompt.row.title }}</h1>
     <p class="text-secondary">
-        <span>Submitted by: <a href="#">AilurusFulgens</a></span> |
+        <!-- <span>Submitted by: <a href="#"></a></span> | -->
         <span
             >Published on:
-            <time datetime="2025-05-19T10:30:00">May 19, 2025</time></span
+            <time datetime="2025-05-19T10:30:00"
+                >{{ prompt.row.created_at.unwrap() }}</time
+            ></span
         >
         |
-        <span>⭐ <span id="star-count">127</span></span>
+        <!-- <span>⭐ <span id="star-count">420</span></span> -->
     </p>
     <div>
         <strong>Tags:</strong>
-        <code>world-building</code>
+        <!-- <code>world-building</code>
         <code>creative-writing</code>
         <code>fantasy</code>
-        <code>mystery</code>
+        <code>mystery</code> -->
     </div>
 </header>
 
@@ -38,22 +45,7 @@
 </div>
 
 <pre>
-<code id="prompt-text">
-Imagine you are an explorer who has just stumbled upon the legendary
-lost city of Aethelgard, a place whispered about in ancient texts but
-never found. The city is strangely pristine, yet utterly devoid of
-inhabitants. Describe your first impressions of Aethelgard: its
-architecture, the atmosphere, and any peculiar details you notice.
-Your task is to write a narrative piece detailing:
-    - The unique architectural style and materials used in Aethelgard.
-    - Any signs or clues about the civilization that built it and why they
-    might have vanished.
-    - A specific, intriguing object or location you discover within the
-    city that deepens the mystery.
-    - The emotional and psychological impact of discovering such a place.
-Focus on vivid imagery and sensory details to bring Aethelgard to life
-for the reader.
-</code>
+<code id="prompt-text">{{ prompt.row.content }}</code>
 </pre>
 {% endblock %} {% block script %}
 <script>

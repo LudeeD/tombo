@@ -1,10 +1,19 @@
+use serde::Deserialize;
 use sqlx::prelude::FromRow;
 use time::OffsetDateTime;
 
 pub mod handlers;
 pub mod templates;
 
-#[derive(Debug, FromRow)]
+#[derive(Debug, FromRow, Deserialize)]
+pub struct NewPrompt {
+    pub title: String,
+    pub content: String,
+    pub tags: String,
+    pub description: String,
+}
+
+#[derive(Debug, FromRow, Deserialize)]
 pub struct PromptRow {
     pub id: i64,
     pub title: String,

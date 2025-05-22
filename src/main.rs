@@ -12,7 +12,6 @@ use axum_login::{
 };
 use axum_messages::MessagesManagerLayer;
 use db::pool_from_env;
-use handler::add_prompt;
 use sqlx::SqlitePool;
 use time::Duration;
 use tower_sessions::cookie::Key;
@@ -56,8 +55,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .route("/dashboard", get(prompts::handlers::list))
-        .route("/prompt/new", get(add_prompt))
         .route_layer(login_required!(Backend, login_url = "/login"))
+        .route(
+            "/prompt/new",
+            get(prompts::handlers::add_prompt).post(prompts::handlers::create),
+        )
         .route("/", get(prompts::handlers::list))
         .route("/js/htmx.min.js", get(public::htmx))
         .route("/style.css", get(public::css))

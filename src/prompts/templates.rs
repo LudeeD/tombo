@@ -5,6 +5,7 @@ use super::PromptData;
 #[derive(Template)]
 #[template(path = "list_prompt.html")]
 pub struct ListTemplate {
+    pub user_logged_in: bool,
     pub prompts: Vec<PromptData>,
 }
 
@@ -19,7 +20,7 @@ pub struct Comment {
 #[derive(Template)]
 #[template(path = "details_prompt.html")]
 pub struct DetailTemplate {
-    pub current_user_id: i64,
+    pub user_logged_in: bool,
     pub prompt: PromptData,
     pub comments: Vec<Comment>,
 }

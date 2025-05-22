@@ -1,89 +1,64 @@
-{% extends "layout.html" %} {% block head %}
-<style type="text/tailwindcss">
-    /* Header navigation link style */
-    .user-nav-link-header {
-        @apply text-stone-300 hover:text-white text-xs font-medium transition-colors duration-150 ease-in-out;
-    }
+{% extends "layout.html" %} {% block head %} {# Page‑specific
+<head>
+    elements can go here #} {% endblock %} {% block content %}
+    <h2>Create a New Prompt</h2>
 
-    /* Form Styles for Brutalist Theme */
-    .form-label {
-        @apply block text-sm font-medium text-gray-700 mb-1;
-    }
-    .form-input,
-    .form-textarea {
-        /* No rounded corners, consistent border, focus state */
-        @apply block w-full px-3 py-2 border border-gray-400 shadow-sm placeholder-gray-400
-                       focus:outline-none focus:ring-1 focus:ring-stone-500 focus:border-stone-500 sm:text-sm;
-        border-radius: 0; /* Explicitly set no border radius */
-    }
-    .form-help-text {
-        @apply text-xs text-gray-500 mt-1;
-    }
-    .form-submit-button {
-        /* Styled like the "+ Add Prompt" button from home page */
-        @apply inline-flex justify-center py-2 px-4 border border-stone-700 shadow-sm text-sm font-medium text-white bg-stone-500 hover:bg-stone-600
-                       focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-stone-500 transition-colors;
-        border-radius: 0; /* Explicitly set no border radius */
-    }
-</style>
-
-{% endblock %} {% block content %}
-<h2 class="text-xl font-semibold text-gray-800 mb-6">Create a New Prompt</h2>
-<form action="/prompt/new" method="POST" class="space-y-5">
-    <div>
-        <label for="prompt-title" class="form-label">Title</label>
+    <form action="/prompt/new" method="post">
+        {# ————————— TITLE ————————— #}
+        <label for="title">Title</label>
         <input
+            id="title"
+            name="title"
             type="text"
-            id="prompt-title"
-            name="prompt-title"
-            class="form-input"
             placeholder="A clear and concise title"
             required
         />
-    </div>
 
-    <div>
-        <label for="prompt-text" class="form-label">Prompt Text</label>
+        {# ————————— PROMPT TEXT ————————— #}
+        <label for="content">Prompt Text</label>
         <textarea
-            id="prompt-text"
-            name="prompt-text"
+            id="content"
+            name="content"
             rows="10"
-            class="form-textarea font-mono text-sm"
-            placeholder="Enter the full text of your prompt here..."
+            style="width: 100%"
+            placeholder="Enter the full text of your prompt here…"
             required
         ></textarea>
-        <p class="form-help-text">The core content of the prompt.</p>
-    </div>
+        <p><small>The core content of the prompt.</small></p>
 
-    <div>
-        <label for="prompt-tags" class="form-label">Tags</label>
+        {# ————————— TAGS ————————— #}
+        <label for="tags">Tags</label>
         <input
+            id="tags"
+            name="tags"
             type="text"
-            id="prompt-tags"
-            name="prompt-tags"
-            class="form-input"
-            placeholder="e.g., Writing, Code, Fun"
+            placeholder="e.g. writing, code, fun"
         />
-        <p class="form-help-text">Comma-separated tags.</p>
-    </div>
+        <p><small>Comma‑separated tags.</small></p>
 
-    <div>
-        <label for="prompt-description" class="form-label"
-            >Description / Notes
-            <span class="text-gray-400 font-normal">(Optional)</span>
-        </label>
+        {# ————————— DESCRIPTION / NOTES ————————— #}
+        <label for="description"
+            >Description / Notes <span class="muted">(optional)</span></label
+        >
         <textarea
-            id="prompt-description"
-            name="prompt-description"
+            id="description"
+            name="description"
             rows="4"
-            class="form-textarea"
-            placeholder="Add any extra context or usage instructions..."
+            style="width: 100%"
+            placeholder="Add any extra context or usage instructions…"
         ></textarea>
-    </div>
 
-    <div class="pt-4 flex justify-start">
-        <button type="submit" class="form-submit-button">Submit Prompt</button>
-    </div>
-</form>
-
-{% endblock %}
+        {# ————————— SUBMIT ————————— #}
+        <button type="submit">Submit Prompt</button>
+    </form>
+    {% for message in messages %} {% if message.level ==
+    axum_messages::Level::Info %}
+    <blockquote class="hint">
+        <p><b>{{ message }}</b></p>
+    </blockquote>
+    {% else %}
+    <blockquote class="warn">
+        <p><b>⚠ {{ message }}</b></p>
+    </blockquote>
+    {% endif %} {% endfor %} {% endblock %}
+</head>
