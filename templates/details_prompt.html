@@ -1,52 +1,213 @@
-{% extends "layout.html" %} {% block navigation %}
-<li>
-    <a href="/new"><strong>New</strong></a>
-</li>
-<li><a href="/trending">Trending</a></li>
-<li><a href="/categories">Categories</a></li>
-<li><a href="/search">Search</a></li>
-{% endblock %} {% block user %} {% if user_logged_in %}
+{% extends "layout.html" %}
+
+{% block head %}
+<style>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-out both;
+      }
+      .slide-up {
+        animation: slideUp 0.5s ease-out both;
+      }
+      /* Hover lift for cards */
+      .card-hover {
+        transition: all 0.2s ease-out;
+      }
+      .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          0 8px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+    </style>
+  </head>
+{% endblock %}
+
+{% block user %} {% if user_logged_in %}
 <li class="float-right"><a href="/dashboard">Dashboard 🤭</a></li>
 {% else %}
 <li class="float-right"><a href="/login">Login</a></li>
 <li class="float-right"><a href="/signup">Sign Up</a></li>
 {% endif %} {% endblock %} {% block content %}
-<header>
-    <h1>{{ prompt.row.title }}</h1>
-    <p class="text-secondary">
-        <!-- <span>Submitted by: <a href="#"></a></span> | -->
-        <span
-            >Published on:
-            <time datetime="2025-05-19T10:30:00"
-                >{{ prompt.row.created_at.unwrap() }}</time
-            ></span
+<div class="grid lg:grid-cols-3 gap-8">
+    <!-- Prompt content (left) -->
+    <div class="lg:col-span-2">
+        <!-- Title / meta -->
+        <div class="mb-6 space-y-1">
+            <h2 class="text-3xl font-bold text-neutral-800">
+                Prompt Generator ✨
+            </h2>
+            <div class="flex items-center text-sm text-neutral-500 space-x-2">
+                <span>by Demo Author</span>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-3 w-3 text-neutral-400"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <circle cx="12" cy="12" r="3" />
+                </svg>
+                <span>Updated 24 May 2025</span>
+            </div>
+        </div>
+
+        <!-- Prompt detail card -->
+        <section
+            class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-6 space-y-8 card-hover"
         >
-        |
-        <!-- <span>⭐ <span id="star-count">420</span></span> -->
-    </p>
-    <div>
-        <strong>Tags:</strong>
-        <!-- <code>world-building</code>
-        <code>creative-writing</code>
-        <code>fantasy</code>
-        <code>mystery</code> -->
+            <!-- Overview -->
+            <article class="space-y-3">
+                <h3 class="text-lg font-semibold">Overview</h3>
+                <p class="text-neutral-700 leading-relaxed">
+                    This versatile prompt helps you brainstorm and craft fresh
+                    prompt ideas for any situation—from storytelling to
+                    marketing copy. Simply provide a brief description of your
+                    goal, and the AI will generate several tailored prompts you
+                    can iterate on.
+                </p>
+            </article>
+
+            <!-- Prompt snippet -->
+            <article class="space-y-3">
+                <h3 class="text-lg font-semibold flex items-center space-x-2">
+                    <span>Prompt</span>
+                    <span
+                        class="inline-flex items-center px-2 py-0.5 rounded text-xxs bg-neutral-100 text-neutral-600"
+                        >v1.2</span
+                    >
+                </h3>
+                <pre
+                    id="promptText"
+                    class="whitespace-pre-wrap break-words bg-neutral-50 border border-neutral-100 rounded-xl p-4 text-sm font-mono leading-relaxed"
+                >
+You are a world‑class prompt engineer. The user will describe their goal, audience, and constraints. For each request, return three creative prompts that help produce the desired output. After each prompt, briefly explain *why* it works.</pre
+                >
+                <button
+                    id="copyButton"
+                    class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-mintAccent text-white hover:bg-mintAccent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mintAccent transition"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4 mr-1.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M8 16h8M8 12h8m-8-4h8M4 6h16M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6M4 10h16"
+                        />
+                    </svg>
+                    Copy prompt
+                </button>
+                <span
+                    id="copySuccess"
+                    class="ml-3 text-sm text-mintAccent hidden"
+                    >Copied!</span
+                >
+            </article>
+
+            <!-- Example conversation -->
+            <article class="space-y-3">
+                <h3 class="text-lg font-semibold">Example usage</h3>
+                <div class="space-y-4">
+                    <div class="bg-neutral-100 rounded-xl p-4">
+                        <p class="text-sm text-neutral-800">
+                            <span class="font-semibold">User:</span> "I need
+                            fresh social‑media post ideas for a sustainable
+                            fashion brand."
+                        </p>
+                    </div>
+                    <div
+                        class="bg-white rounded-xl border border-neutral-100 shadow-sm p-4"
+                    >
+                        <p class="text-sm text-neutral-800">
+                            <span class="font-semibold">AI:</span> "Here are
+                            three prompts… 1) … 2) … 3) …"
+                        </p>
+                    </div>
+                </div>
+            </article>
+        </section>
     </div>
-</header>
 
-<div class="float-right">
-    <button
-        id="copy-btn"
-        class="copy-text"
-        type="button"
-        onclick="copyPrompt()"
-    >
-        Copy Prompt Text
-    </button>
+    <!-- Sidebar (right) -->
+    <aside class="space-y-6">
+        <!-- Details -->
+        <div
+            class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-6 card-hover"
+        >
+            <h3 class="text-lg font-semibold mb-4">Details</h3>
+            <dl class="text-sm text-neutral-700 space-y-2">
+                <div class="flex justify-between">
+                    <dt>Category</dt>
+                    <dd class="font-medium">Writing</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Difficulty</dt>
+                    <dd class="font-medium">Beginner</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Works best with</dt>
+                    <dd class="font-medium">GPT‑4o</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Estimated tokens</dt>
+                    <dd class="font-medium">≈ 45</dd>
+                </div>
+            </dl>
+            <button
+                class="w-full mt-6 inline-flex items-center justify-center px-4 py-2 rounded-lg bg-lavenderAccent text-white text-sm font-medium hover:bg-lavenderAccent/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lavenderAccent transition"
+            >
+                Try in chat →
+            </button>
+        </div>
+
+        <!-- Tags -->
+        <div
+            class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-6 card-hover"
+        >
+            <h3 class="text-lg font-semibold mb-4">Tags</h3>
+            <div class="flex flex-wrap gap-2">
+                <span
+                    class="px-3 py-1 bg-neutral-100 rounded-full text-xs font-medium tag-pill"
+                    >creative</span
+                >
+                <span
+                    class="px-3 py-1 bg-neutral-100 rounded-full text-xs font-medium tag-pill"
+                    >generator</span
+                >
+                <span
+                    class="px-3 py-1 bg-neutral-100 rounded-full text-xs font-medium tag-pill"
+                    >writing</span
+                >
+                <span
+                    class="px-3 py-1 bg-neutral-100 rounded-full text-xs font-medium tag-pill"
+                    >ideas</span
+                >
+            </div>
+        </div>
+    </aside>
 </div>
-
-<pre>
-<code id="prompt-text">{{ prompt.row.content }}</code>
-</pre>
 {% endblock %} {% block script %}
 <script>
     // Copy prompt function

@@ -9,6 +9,10 @@ endif
 
 .PHONY: deploy
 
+dev:
+	npx @tailwindcss/cli -i ./src/input.css -o ./src/public/style.css
+	cargo run
+
 deploy:
 	@echo "➤ Building Tailwind CSS"
 	npx @tailwindcss/cli -i ./src/input.css -o ./src/public/style.css
@@ -25,3 +29,7 @@ deploy:
 
 	@echo "➤ Notifying deploy hook"
 	curl -sf -X POST "$(DEPLOY_HOOK_URL)"
+
+styles:
+	@echo "➤ Building Tailwind CSS"
+	npx @tailwindcss/cli -i ./src/input.css -o ./src/public/style.css

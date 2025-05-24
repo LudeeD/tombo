@@ -1,5 +1,5 @@
 [jobs.webserver]
-command = ["cargo", "run"]
+command = ["make", "dev"]
 need_stdout = true
 background = false
 on_change_strategy = "kill_then_restart"
