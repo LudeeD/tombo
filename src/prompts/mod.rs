@@ -1,9 +1,19 @@
 use serde::Deserialize;
-use sqlx::prelude::FromRow;
+use sqlx::types::Json;
+use sqlx::{prelude::FromRow, Decode};
 use time::OffsetDateTime;
 
 pub mod handlers;
 pub mod templates;
+
+#[derive(Debug, FromRow, Deserialize, Decode)]
+pub struct Tag {
+    pub id: i64,
+    pub name: String,
+    pub bg_color: String,
+    pub text_color: String,
+    pub kind: String,
+}
 
 #[derive(Debug, FromRow, Deserialize)]
 pub struct PromptList {
@@ -14,6 +24,39 @@ pub struct PromptList {
     pub author_id: i64,
     pub created_at: Option<OffsetDateTime>,
     pub star_count: i64,
+    pub tags: Option<Json<Option<Vec<Tag>>>>,
+}
+
+#[derive(Debug, FromRow, Deserialize)]
+pub struct PromptListReady {
+    pub id: i64,
+    pub title: String,
+    pub description: String,
+    pub author: String,
+    pub author_id: i64,
+    pub created_at: Option<OffsetDateTime>,
+    pub star_count: i64,
+    pub tags: Vec<Tag>,
+}
+
+impl From<PromptList> for PromptListReady {
+    fn from(item: PromptList) -> Self {
+        let tags = match item.tags {
+            Some(tags) => tags.0.unwrap_or_default(),
+            None => Vec::new(),
+        };
+
+        PromptListReady {
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            author: item.author,
+            author_id: item.author_id,
+            created_at: item.created_at,
+            star_count: item.star_count,
+            tags: tags,
+        }
+    }
 }
 
 #[derive(Debug, FromRow, Deserialize)]

@@ -1,5 +1,4 @@
 mod db;
-mod handler;
 mod prompts;
 mod users;
 
@@ -10,7 +9,7 @@ use axum_login::{
     AuthManagerLayerBuilder,
 };
 use axum_messages::MessagesManagerLayer;
-use db::pool_from_env;
+use db::{pool_from_env, seed};
 use memory_serve::{load_assets, MemoryServe};
 use sqlx::SqlitePool;
 use time::Duration;
@@ -31,6 +30,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pool = pool_from_env().await;
 
     sqlx::migrate!("./migrations").run(&pool).await?;
+
+    seed(pool.clone()).await;
 
     let session_store = SqliteStore::new(pool.clone());
     session_store.migrate().await?;

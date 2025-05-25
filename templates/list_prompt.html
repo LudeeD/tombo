@@ -80,10 +80,9 @@
 
             <div class="space-y-6">
                 <div>
-                    <h3 class="font-medium text-neutral-700 mb-3">
-                        Categories
-                    </h3>
+                    <h3 class="font-medium text-neutral-700 mb-3">Tags</h3>
                     <div class="space-y-2">
+                        {% for tag in tags %}
                         <label
                             class="flex items-center space-x-2 cursor-pointer"
                         >
@@ -92,55 +91,14 @@
                                 class="rounded border-neutral-300 text-mintAccent focus:ring-mintAccent"
                             />
                             <span class="text-sm text-neutral-600"
-                                >Role-playing</span
-                            >
+                                >{{ tag.name }}
+                            </span>
                         </label>
-                        <label
-                            class="flex items-center space-x-2 cursor-pointer"
-                        >
-                            <input
-                                type="checkbox"
-                                class="rounded border-neutral-300 text-mintAccent focus:ring-mintAccent"
-                            />
-                            <span class="text-sm text-neutral-600"
-                                >Writing</span
-                            >
-                        </label>
-                        <label
-                            class="flex items-center space-x-2 cursor-pointer"
-                        >
-                            <input
-                                type="checkbox"
-                                class="rounded border-neutral-300 text-mintAccent focus:ring-mintAccent"
-                            />
-                            <span class="text-sm text-neutral-600"
-                                >Business</span
-                            >
-                        </label>
-                        <label
-                            class="flex items-center space-x-2 cursor-pointer"
-                        >
-                            <input
-                                type="checkbox"
-                                class="rounded border-neutral-300 text-mintAccent focus:ring-mintAccent"
-                            />
-                            <span class="text-sm text-neutral-600">Games</span>
-                        </label>
-                        <label
-                            class="flex items-center space-x-2 cursor-pointer"
-                        >
-                            <input
-                                type="checkbox"
-                                class="rounded border-neutral-300 text-mintAccent focus:ring-mintAccent"
-                            />
-                            <span class="text-sm text-neutral-600"
-                                >Education</span
-                            >
-                        </label>
+                        {% endfor %}
                     </div>
                 </div>
 
-                <div>
+                <!-- <div>
                     <h3 class="font-medium text-neutral-700 mb-3">AI Models</h3>
                     <div class="space-y-2">
                         <label
@@ -186,7 +144,7 @@
                             >
                         </label>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </aside>
@@ -267,21 +225,14 @@
                     <div class="pt-2 border-t border-neutral-100">
                         <div class="text-xs text-neutral-500 mb-2">Tags:</div>
                         <div class="flex flex-wrap gap-2">
+                            {% for tag in prompt.tags %}
                             <span
-                                class="px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-md font-medium"
+                                class="px-2 py-1 text-xs rounded-md font-medium"
+                                style="background-color: #{{ tag.bg_color }}; color: {{ tag.text_color }}"
                             >
-                                Gipities
+                                {{ tag.name }}
                             </span>
-                            <span
-                                class="px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-md font-medium"
-                            >
-                                Gipities
-                            </span>
-                            <span
-                                class="px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-md font-medium"
-                            >
-                                Gipities
-                            </span>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
