@@ -13,6 +13,7 @@ pub struct PromptList {
     pub author: String,
     pub author_id: i64,
     pub created_at: Option<OffsetDateTime>,
+    pub star_count: i64,
 }
 
 #[derive(Debug, FromRow, Deserialize)]

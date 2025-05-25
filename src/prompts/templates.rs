@@ -5,7 +5,7 @@ use super::{PromptData, PromptList};
 #[derive(Template)]
 #[template(path = "list_prompt.html")]
 pub struct ListTemplate {
-    pub user_logged_in: bool,
+    pub user: Option<i64>,
     pub prompts: Vec<PromptList>,
 }
 

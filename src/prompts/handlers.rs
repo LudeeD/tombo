@@ -1,3 +1,6 @@
+use super::templates::ListTemplate;
+use super::{templates::DetailTemplate, NewPrompt, PromptList, PromptRow};
+use crate::{users::AuthSession, AppState};
 use askama::Template;
 use axum::{
     extract::{Path, State},
@@ -7,12 +10,10 @@ use axum::{
 use axum_messages::{Message, Messages};
 use tracing::error;
 
-use super::templates::ListTemplate;
-use super::{templates::DetailTemplate, NewPrompt, PromptList, PromptRow};
-use crate::{users::AuthSession, AppState};
-
 pub async fn list(auth_session: AuthSession, State(state): State<AppState>) -> impl IntoResponse {
     let db = state.pool;
+
+    let user = auth_session.user.map(|user| user.id);
 
     let prompts: Vec<PromptList> = sqlx::query_as!(
         PromptList,
@@ -23,10 +24,13 @@ pub async fn list(auth_session: AuthSession, State(state): State<AppState>) -> i
                  p.description,
                  u.id AS author_id,
                  u.username AS author,
-                 p.created_at
+                 p.created_at,
+                 COUNT(s.user_id) AS star_count
           FROM   prompts p
           JOIN   users   u ON u.id = p.user_id
+          LEFT   JOIN prompt_stars s ON s.prompt_id = p.id
           WHERE  p.created_at >= datetime('now','-30 days')
+          GROUP BY p.id
           ORDER BY p.created_at DESC
           LIMIT  20 OFFSET $1
         )
@@ -40,10 +44,7 @@ pub async fn list(auth_session: AuthSession, State(state): State<AppState>) -> i
         Vec::new()
     });
 
-    let template = ListTemplate {
-        user_logged_in: auth_session.user.is_some(),
-        prompts,
-    };
+    let template = ListTemplate { user, prompts };
 
     Html(template.render().expect("demo"))
 }
