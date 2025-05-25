@@ -7,22 +7,38 @@ use axum::{
 use axum_messages::{Message, Messages};
 use tracing::error;
 
-use super::{templates::DetailTemplate, NewPrompt, PromptRow};
-use super::{templates::ListTemplate, PromptData};
+use super::templates::ListTemplate;
+use super::{templates::DetailTemplate, NewPrompt, PromptList, PromptRow};
 use crate::{users::AuthSession, AppState};
 
 pub async fn list(auth_session: AuthSession, State(state): State<AppState>) -> impl IntoResponse {
     let db = state.pool;
 
-    let prompts: Vec<PromptRow> = sqlx::query_as!(PromptRow, "SELECT * FROM prompts")
-        .fetch_all(&db)
-        .await
-        .unwrap_or_else(|err| {
-            error!("{err}");
-            Vec::new()
-        });
-
-    let prompts: Vec<PromptData> = prompts.into_iter().map(PromptData::from).collect();
+    let prompts: Vec<PromptList> = sqlx::query_as!(
+        PromptList,
+        "
+        WITH feed AS (
+          SELECT p.id,
+                 p.title,
+                 p.description,
+                 u.id AS author_id,
+                 u.username AS author,
+                 p.created_at
+          FROM   prompts p
+          JOIN   users   u ON u.id = p.user_id
+          WHERE  p.created_at >= datetime('now','-30 days')
+          ORDER BY p.created_at DESC
+          LIMIT  20 OFFSET $1
+        )
+        SELECT * FROM feed;",
+        0
+    )
+    .fetch_all(&db)
+    .await
+    .unwrap_or_else(|err| {
+        error!("{err}");
+        Vec::new()
+    });
 
     let template = ListTemplate {
         user_logged_in: auth_session.user.is_some(),

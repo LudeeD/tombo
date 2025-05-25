@@ -235,8 +235,8 @@
             <!-- Prompt cards will be inserted here -->
 
             {% for prompt in prompts %}
-            <a
-                href="/prompt/{{ prompt.row.id }}"
+            <div
+                onclick="location.href='/prompt/{{ prompt.id }}'"
                 class="card-hover bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 cursor-pointer animate-slide-up"
             >
                 <div class="space-y-4">
@@ -244,19 +244,24 @@
                         <h3
                             class="text-lg font-semibold text-neutral-800 mb-2 line-clamp-1"
                         >
-                            {{ prompt.row.title }}
+                            {{ prompt.title }}
                         </h3>
                         <p
                             class="text-sm text-neutral-600 line-clamp-2 leading-relaxed"
                         >
-                            {{ prompt.row.description }}
+                            {{ prompt.description }}
                         </p>
                     </div>
 
                     <div
                         class="flex items-center justify-between text-xs text-neutral-500"
                     >
-                        <span>by Demo Author</span>
+                        <span>
+                            by
+                            <a href="/author/{{ prompt.author_id }}"
+                                >{{ prompt.author }}</a
+                            ></span
+                        >
                     </div>
 
                     <div class="flex flex-wrap gap-2">
@@ -280,7 +285,7 @@
                         </div>
                     </div>
                 </div>
-            </a>
+            </div>
 
             {% endfor %}
         </div>

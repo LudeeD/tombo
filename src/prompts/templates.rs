@@ -1,12 +1,12 @@
 use askama::Template;
 
-use super::PromptData;
+use super::{PromptData, PromptList};
 
 #[derive(Template)]
 #[template(path = "list_prompt.html")]
 pub struct ListTemplate {
     pub user_logged_in: bool,
-    pub prompts: Vec<PromptData>,
+    pub prompts: Vec<PromptList>,
 }
 
 pub struct Comment {

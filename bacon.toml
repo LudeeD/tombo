@@ -11,6 +11,6 @@ kill = ["kill", "-s", "INT"]
 watch = ["templates"]
 
 [jobs.styles]
-command = ["npx", "@tailwindcss/cli", "-i", "./src/input.css", "-o", "./src/public/style.css"]
+command = ["npx", "@tailwindcss/cli", "-i", "./src/input.css", "-o", "./public/style.css"]
 allow_warnings = true
 need_stdout = true
