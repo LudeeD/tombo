@@ -1,0 +1,50 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        WITH feed AS (\n          SELECT p.id,\n                 p.title,\n                 p.description,\n                 u.id AS author_id,\n                 u.username AS author,\n                 p.created_at\n          FROM   prompts p\n          JOIN   users   u ON u.id = p.user_id\n          WHERE  p.created_at >= datetime('now','-30 days')\n          ORDER BY p.created_at DESC\n          LIMIT  20 OFFSET $1\n        )\n        SELECT * FROM feed;",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "title",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "description",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "author_id",
+        "ordinal": 3,
+        "type_info": "Integer"
+      },
+      {
+        "name": "author",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 5,
+        "type_info": "Datetime"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "9216e269bdfeafe08a0a9e34f7477aadef0d85e2d2b40b93dfcb67ed009f6a2c"
+}

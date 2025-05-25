@@ -27,6 +27,16 @@
         "name": "created_at",
         "ordinal": 4,
         "type_info": "Datetime"
+      },
+      {
+        "name": "user_id",
+        "ordinal": 5,
+        "type_info": "Integer"
+      },
+      {
+        "name": "parent_prompt_id",
+        "ordinal": 6,
+        "type_info": "Integer"
       }
     ],
     "parameters": {
@@ -37,6 +47,8 @@
       false,
       false,
       false,
+      true,
+      true,
       true
     ]
   },
