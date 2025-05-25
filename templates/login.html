@@ -1,39 +1,59 @@
 {% extends "layout.html" %} {% block content %}
-<div>
-    <h1>Login</h1>
-    <form action="/login" method="POST">
-        {# Adjust action URL as needed #}
-        <div>
-            <label for="username">Username or Email</label>
+<h1 class="text-3xl font-extrabold text-gray-900 mb-6">
+    Log in to your account
+</h1>
+<form action="/login" method="POST" class="space-y-6">
+    {# Adjust action URL as needed #}
+    <div>
+        <label for="username" class="block text-sm font-medium text-gray-700"
+            >Username or Email</label
+        >
+        <div class="mt-1">
             <input
                 type="text"
                 id="username"
                 name="username"
                 required
                 autofocus
+                class="form-input"
+                placeholder="you@example.com"
             />
         </div>
-        <div>
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required />
-        </div>
-        <div>
-            <button type="submit">Login</button>
-        </div>
-    </form>
-    <div>
-        <p>Don't have an account? <a href="/signup">Sign Up</a></p>
     </div>
-    {% for message in messages %} {% if message.level ==
-    axum_messages::Level::Info %}
-    <blockquote class="hint">
-        <p><b>{{ message }}</b></p>
-    </blockquote>
-    {% else %}
-    <blockquote class="warn">
-        <p><b>⚠ {{ message }}</b></p>
-    </blockquote>
-    {% endif %} {% endfor %}
+    <div>
+        <label for="password" class="block text-sm font-medium text-gray-700"
+            >Password</label
+        >
+        <div class="mt-1">
+            <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                class="form-input"
+                placeholder="Your password"
+            />
+        </div>
+    </div>
+
+    <button
+        type="submit"
+        class="cursor-pointer inline-block rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-600/90"
+    >
+        Login
+    </button>
+</form>
+<p class="mt-2">
+    Don't have an account?
+    <a href="/signup" class="font-medium text-primary hover:underline"
+        >Sign Up</a
+    >
+</p>
+
+{# Message Handling #}
+<div class="mt-8 space-y-4">
+    {% for message in messages %}
+    <p><b>{{ message }}</b></p>
+    {% endfor %}
 </div>
-{% endblock %} {% block script %} {# Add any page-specific JavaScript here if
-needed #} {% endblock %}
+{% endblock %}
