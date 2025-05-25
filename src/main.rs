@@ -1,7 +1,6 @@
 mod db;
 mod handler;
 mod prompts;
-mod public;
 mod users;
 
 use axum::{routing::get, Router};
@@ -12,6 +11,7 @@ use axum_login::{
 };
 use axum_messages::MessagesManagerLayer;
 use db::pool_from_env;
+use memory_serve::{load_assets, MemoryServe};
 use sqlx::SqlitePool;
 use time::Duration;
 use tower_sessions::cookie::Key;
@@ -53,6 +53,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let state = AppState { pool: pool };
 
+    let static_memory_router = MemoryServe::new(load_assets!("./public")).into_router();
+
     let app = Router::new()
         .route("/dashboard", get(prompts::handlers::list))
         .route_layer(login_required!(Backend, login_url = "/login"))
@@ -61,8 +63,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             get(prompts::handlers::add_prompt).post(prompts::handlers::create),
         )
         .route("/", get(prompts::handlers::list))
-        .route("/js/htmx.min.js", get(public::htmx))
-        .route("/style.css", get(public::css))
         .route("/prompt/{prompt_id}", get(prompts::handlers::detail))
         .route(
             "/signup",
@@ -74,6 +74,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .route("/logout", get(users::handlers::get::logout))
         .with_state(state)
+        .merge(static_memory_router)
         .layer(MessagesManagerLayer)
         .layer(auth_layer);
 
