@@ -192,6 +192,7 @@ pub async fn raw(State(state): State<AppState>, Path(prompt_id): Path<i64>) -> i
 #[derive(Template)]
 #[template(path = "add_prompt.html")]
 pub struct AddPromptTemplate {
+    user: Option<i64>,
     messages: Vec<Message>,
 }
 
@@ -201,7 +202,6 @@ pub async fn create(
     State(state): State<AppState>,
     Form(form): Form<NewPrompt>,
 ) -> impl IntoResponse {
-    info!("Here");
     let db = state.pool;
 
     let user = auth_session.user.map(|user| user.id);
@@ -228,8 +228,11 @@ pub async fn create(
     return Redirect::to("/prompt/new").into_response();
 }
 
-pub async fn add_prompt(messages: Messages) -> impl IntoResponse {
+pub async fn add_prompt(auth_session: AuthSession, messages: Messages) -> impl IntoResponse {
+    let user = auth_session.user.map(|user| user.id);
+
     let template = AddPromptTemplate {
+        user,
         messages: messages.into_iter().collect(),
     };
     Html(template.render().expect("Failed to render add prompt form"))
@@ -263,16 +266,44 @@ pub async fn add_tags(
     auth_session: AuthSession,
     Path(prompt_id): Path<i64>,
     State(state): State<AppState>,
+    Form(form): Form<Vec<(String, String)>>, // Add form extraction
 ) -> impl IntoResponse {
     let db = state.pool;
-    let tags: Vec<Tag> = sqlx::query_as!(Tag, "SELECT * FROM tags")
-        .fetch_all(&db)
-        .await
-        .unwrap_or_else(|err| {
-            error!("{err}");
-            Vec::new()
-        });
-    let template = AvailableTags { prompt_id, tags };
 
-    Html(template.render().expect("Failed to render add prompt form"))
+    let user = auth_session.user.map(|user| user.id);
+
+    // Ensure the user is the creator of this prompt
+    let Ok(Some(_check_auth)) = sqlx::query!(
+        // Add 'as "one"' (or any valid identifier)
+        r#"SELECT 1 as "one" FROM prompts WHERE id = ? AND user_id = ?"#,
+        prompt_id,
+        user
+    )
+    .fetch_optional(&db)
+    .await
+    else {
+        return (StatusCode::UNAUTHORIZED, "Unauthorized").into_response();
+    };
+
+    // Delete existing tags for this prompt to avoid duplicates
+    sqlx::query!("DELETE FROM prompt_tags WHERE prompt_id = ?", prompt_id)
+        .execute(&db)
+        .await;
+
+    // Insert new tag associations
+    for (name, tag_id) in form.iter() {
+        if name == "tags[]" {
+            if let Ok(tag_id) = tag_id.parse::<i64>() {
+                sqlx::query!(
+                    "INSERT INTO prompt_tags (prompt_id, tag_id) VALUES (?, ?)",
+                    prompt_id,
+                    tag_id
+                )
+                .execute(&db)
+                .await;
+            }
+        }
+    }
+
+    return Redirect::to(&format!("/prompt/{prompt_id}")).into_response();
 }

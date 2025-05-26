@@ -3,7 +3,7 @@ mod prompts;
 mod users;
 
 use axum::{
-    routing::{get, put},
+    routing::{get, post},
     Router,
 };
 use axum_login::{
@@ -72,7 +72,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "/prompt/{prompt_id}/tags/edit",
             get(prompts::handlers::tag_edit),
         )
-        .route("/prompt/{prompt_id}/tags", put(prompts::handlers::add_tags))
+        .route(
+            "/prompt/{prompt_id}/tags",
+            post(prompts::handlers::add_tags),
+        )
         .route("/prompt/{prompt_id}/raw", get(prompts::handlers::raw))
         .route(
             "/signup",
