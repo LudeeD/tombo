@@ -1,0 +1,68 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT\n                p.id,\n                p.title,\n                p.description,\n                u.id                   AS author_id,\n                u.username             AS author,\n                p.created_at,\n                p.content,\n                COUNT(DISTINCT s.user_id)          AS star_count,\n                NULLIF(\n                    json_group_array(\n                        CASE\n                            WHEN t.id IS NOT NULL THEN\n                                json_object(\n                                    'id',       t.id,\n                                    'name',     t.name,\n                                    'bg_color', t.bg_color,\n                                    'text_color', t.text_color,\n                                    'kind',     t.kind\n                                )\n                            ELSE NULL\n                        END\n                    ),\n                    '[null]'\n                ) AS \"tags: Json<Option<Vec<Tag>>>\"\n            FROM       prompts p\n            JOIN       users          u  ON u.id = p.user_id\n            LEFT JOIN  prompt_stars   s  ON s.prompt_id = p.id\n            LEFT JOIN  prompt_tags    pt ON pt.prompt_id = p.id\n            LEFT JOIN  tags           t  ON t.id = pt.tag_id\n            WHERE      p.id = $1\n            GROUP BY   p.id,\n                       p.title,\n                       p.description,\n                       u.id,\n                       u.username,\n                       p.created_at\n            ORDER BY   p.created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "title",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "description",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "author_id",
+        "ordinal": 3,
+        "type_info": "Integer"
+      },
+      {
+        "name": "author",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 5,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "content",
+        "ordinal": 6,
+        "type_info": "Text"
+      },
+      {
+        "name": "star_count",
+        "ordinal": 7,
+        "type_info": "Integer"
+      },
+      {
+        "name": "tags: Json<Option<Vec<Tag>>>",
+        "ordinal": 8,
+        "type_info": "Null"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "b8506e46741faffca50425052d57fecaf1c7a28bd4e2585011862c58f2222b37"
+}
