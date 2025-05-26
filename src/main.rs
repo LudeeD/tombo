@@ -2,7 +2,10 @@ mod db;
 mod prompts;
 mod users;
 
-use axum::{routing::get, Router};
+use axum::{
+    routing::{get, put},
+    Router,
+};
 use axum_login::{
     login_required,
     tower_sessions::{ExpiredDeletion, Expiry, SessionManagerLayer},
@@ -58,13 +61,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .route("/dashboard", get(prompts::handlers::list))
-        .route_layer(login_required!(Backend, login_url = "/login"))
         .route(
             "/prompt/new",
             get(prompts::handlers::add_prompt).post(prompts::handlers::create),
         )
+        .route_layer(login_required!(Backend, login_url = "/login"))
         .route("/", get(prompts::handlers::list))
         .route("/prompt/{prompt_id}", get(prompts::handlers::detail))
+        .route(
+            "/prompt/{prompt_id}/tags/edit",
+            get(prompts::handlers::tag_edit),
+        )
+        .route("/prompt/{prompt_id}/tags", put(prompts::handlers::add_tags))
+        .route("/prompt/{prompt_id}/raw", get(prompts::handlers::raw))
         .route(
             "/signup",
             get(users::handlers::get::signup).post(users::handlers::post::signup),

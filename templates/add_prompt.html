@@ -51,17 +51,17 @@
         Fill out the details below.
     </p>
 
-    <form id="addPromptForm" class="space-y-8">
+    <form method="post" action="/prompt/new" class="space-y-8">
         <div>
             <label
-                for="prompt-title"
+                for="title"
                 class="block text-sm font-medium text-neutral-700 mb-1"
                 >Prompt Title</label
             >
             <input
                 type="text"
-                name="prompt-title"
-                id="prompt-title"
+                name="title"
+                id="title"
                 class="form-input w-full border-neutral-300 rounded-lg shadow-sm"
                 placeholder="e.g., Epic Fantasy World Builder"
                 required
@@ -73,13 +73,13 @@
 
         <div>
             <label
-                for="prompt-description"
+                for="description"
                 class="block text-sm font-medium text-neutral-700 mb-1"
                 >Description</label
             >
             <textarea
-                id="prompt-description"
-                name="prompt-description"
+                id="description"
+                name="description"
                 rows="3"
                 class="form-textarea w-full border-neutral-300 rounded-lg shadow-sm"
                 placeholder="Briefly explain what your prompt does and its use case."
@@ -89,13 +89,13 @@
 
         <div>
             <label
-                for="prompt-text"
+                for="content"
                 class="block text-sm font-medium text-neutral-700 mb-1"
                 >The Prompt</label
             >
             <textarea
-                id="prompt-text"
-                name="prompt-text"
+                id="content"
+                name="content"
                 rows="10"
                 class="form-textarea w-full border-neutral-300 rounded-lg shadow-sm font-mono text-sm"
                 placeholder="Paste or write your full AI prompt here..."
@@ -107,54 +107,25 @@
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-                <label
-                    for="category"
-                    class="block text-sm font-medium text-neutral-700 mb-1"
-                    >Category</label
-                >
-                <select
-                    id="category"
-                    name="category"
-                    class="form-select w-full border-neutral-300 rounded-lg shadow-sm"
-                    required
-                >
-                    <option value="" disabled selected>
-                        Select a category...
-                    </option>
-                    <option value="writing">Writing</option>
-                    <option value="business">Business</option>
-                    <option value="games">Games / Role-playing</option>
-                    <option value="programming">Programming</option>
-                    <option value="education">Education</option>
-                    <option value="lifestyle">Lifestyle</option>
-                    <option value="marketing">Marketing</option>
-                    <option value="art-design">Art & Design</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-
-            <div>
-                <label
-                    for="tags"
-                    class="block text-sm font-medium text-neutral-700 mb-1"
-                    >Tags</label
-                >
-                <input
-                    type="text"
-                    name="tags"
-                    id="tags"
-                    class="form-input w-full border-neutral-300 rounded-lg shadow-sm"
-                    placeholder="e.g., fantasy, world-building, D&D"
-                />
-                <p class="mt-1 text-xs text-neutral-500">
-                    Comma-separated tags to help others find it.
-                </p>
-            </div>
+        <div>
+            <label
+                for="tags"
+                class="block text-sm font-medium text-neutral-700 mb-1"
+                >Tags</label
+            >
+            <input
+                type="text"
+                name="tags"
+                id="tags"
+                class="form-input w-full border-neutral-300 rounded-lg shadow-sm"
+                placeholder="e.g., fantasy, world-building, D&D"
+            />
+            <p class="mt-1 text-xs text-neutral-500">
+                Comma-separated tags to help others find it.
+            </p>
         </div>
 
-        <div>
+        <!-- <div>
             <label class="block text-sm font-medium text-neutral-700 mb-2"
                 >Recommended AI Models</label
             >
@@ -232,7 +203,7 @@
                     >
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <div class="pt-6 border-t border-neutral-200">
             <button

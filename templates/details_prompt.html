@@ -1,51 +1,41 @@
-{% extends "layout.html" %}
-
-{% block head %}
+{% extends "layout.html" %} {% block head %}
 <style>
-      @keyframes fadeIn {
+    @keyframes fadeIn {
         from {
-          opacity: 0;
+            opacity: 0;
         }
         to {
-          opacity: 1;
+            opacity: 1;
         }
-      }
-      @keyframes slideUp {
+    }
+    @keyframes slideUp {
         from {
-          opacity: 0;
-          transform: translateY(12px);
+            opacity: 0;
+            transform: translateY(12px);
         }
         to {
-          opacity: 1;
-          transform: translateY(0);
+            opacity: 1;
+            transform: translateY(0);
         }
-      }
-      .fade-in {
+    }
+    .fade-in {
         animation: fadeIn 0.5s ease-out both;
-      }
-      .slide-up {
+    }
+    .slide-up {
         animation: slideUp 0.5s ease-out both;
-      }
-    </style>
-  </head>
-{% endblock %}
-
-{% block user %} {% if user_logged_in %}
-<li class="float-right"><a href="/dashboard">Dashboard 🤭</a></li>
-{% else %}
-<li class="float-right"><a href="/login">Login</a></li>
-<li class="float-right"><a href="/signup">Sign Up</a></li>
-{% endif %} {% endblock %} {% block content %}
+    }
+</style>
+{% endblock %} {% block content %}
 <div class="grid lg:grid-cols-3 gap-8">
     <!-- Prompt content (left) -->
     <div class="lg:col-span-2">
         <!-- Title / meta -->
         <div class="mb-6 space-y-1">
             <h2 class="text-3xl font-bold text-neutral-800">
-                {{ prompt.row.title }}
+                {{ prompt.title }}
             </h2>
             <div class="flex items-center text-sm text-neutral-500 space-x-2">
-                <!-- <span>by Demo Author</span> -->
+                <span>by {{ prompt.author }}</span>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     class="h-3 w-3 text-neutral-400"
@@ -54,7 +44,7 @@
                 >
                     <circle cx="12" cy="12" r="3" />
                 </svg>
-                <span>Updated {{ prompt.row.created_at.unwrap() }}</span>
+                <span>Updated {{ prompt.created_at.unwrap() }}</span>
             </div>
         </div>
 
@@ -66,7 +56,7 @@
             <article class="space-y-3">
                 <h3 class="text-lg font-semibold">Overview</h3>
                 <p class="text-neutral-700 leading-relaxed">
-                    {{ prompt.row.description }}
+                    {{ prompt.description }}
                 </p>
             </article>
 
@@ -82,7 +72,9 @@
                 <pre
                     id="promptText"
                     class="whitespace-pre-wrap break-words bg-neutral-50 border border-neutral-100 rounded-xl p-4 text-sm font-mono leading-relaxed"
-                >{{ prompt.row.content }}</pre>
+                >
+{{ prompt.content }}</pre
+                >
                 <button
                     id="copyButton"
                     class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-600/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-mintaccent transition"
@@ -110,7 +102,6 @@
                     >Copied!</span
                 >
             </article>
-
         </section>
     </div>
 
@@ -122,7 +113,7 @@
         >
             <h3 class="text-lg font-semibold mb-4">Details</h3>
             <dl class="text-sm text-neutral-700 space-y-2">
-                <div class="flex justify-between">
+                <!-- <div class="flex justify-between">
                     <dt>Category</dt>
                     <dd class="font-medium">Writing</dd>
                 </div>
@@ -133,18 +124,26 @@
                 <div class="flex justify-between">
                     <dt>Works best with</dt>
                     <dd class="font-medium">GPT‑4o</dd>
-                </div>
+                </div> -->
                 <div class="flex justify-between">
                     <dt>Estimated tokens</dt>
-                    <dd class="font-medium">≈ 45</dd>
+                    <dd class="font-medium">≈ {{ prompt.estimated_tokens }}</dd>
                 </div>
             </dl>
             <button
+                onclick="alert('not implemented')"
                 class="w-full mt-6 inline-flex items-center justify-center px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-600/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fucsia-600 transition"
             >
                 ⭐ Star
             </button>
+            <a
+                class="w-full mt-6 inline-flex items-center justify-center px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-600/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fucsia-600 transition"
+                href="/prompt/{{ prompt.id }}/raw"
+            >
+                🍣 Raw
+            </a>
             <button
+                onclick="alert('not implemented')"
                 class="w-full mt-6 inline-flex items-center justify-center px-4 py-2 rounded-lg bg-fuchsia-600 text-white text-sm font-medium hover:bg-fuchsia-600/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fucsia-600 transition"
             >
                 🪚 Fork
@@ -157,23 +156,22 @@
         >
             <h3 class="text-lg font-semibold mb-4">Tags</h3>
             <div class="flex flex-wrap gap-2">
+                {% for tag in prompt.tags %}
                 <span
-                    class="px-3 py-1 bg-neutral-100 rounded-full text-xs font-medium tag-pill"
-                    >creative</span
+                    class="px-2 py-1 text-xs rounded-md font-medium"
+                    style="background-color: #{{ tag.bg_color }}; color: {{ tag.text_color }}"
                 >
-                <span
-                    class="px-3 py-1 bg-neutral-100 rounded-full text-xs font-medium tag-pill"
-                    >generator</span
-                >
-                <span
-                    class="px-3 py-1 bg-neutral-100 rounded-full text-xs font-medium tag-pill"
-                    >writing</span
-                >
-                <span
-                    class="px-3 py-1 bg-neutral-100 rounded-full text-xs font-medium tag-pill"
-                    >ideas</span
-                >
+                    {{ tag.name }}
+                </span>
+                {% endfor %}
             </div>
+            <button
+                hx-swap="outerHTML"
+                hx-get="/prompt/{{ prompt.id }}/tags/edit"
+                class="w-full mt-6 inline-flex items-center justify-center px-4 bg-slate-600 py-2 rounded-lg text-white text-sm font-medium hover:bg-slate-600/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fucsia-600 transition"
+            >
+                + Add tags
+            </button>
         </div>
     </aside>
 </div>

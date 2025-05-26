@@ -26,7 +26,7 @@
                     </div>
 
                     <!-- Search Bar -->
-                    <div class="flex-1 max-w-md mx-4">
+                    <!-- <div class="flex-1 max-w-md mx-4">
                         <div class="relative">
                             <input
                                 type="search"
@@ -48,8 +48,9 @@
                                 />
                             </svg>
                         </div>
-                    </div>
+                    </div> -->
 
+                    {% if user is not defined || user.is_none() %}
                     <div class="hidden lg:flex items-center space-x-4">
                         <a
                             href="/login"
@@ -62,6 +63,15 @@
                             >Sign up</a
                         >
                     </div>
+                    {% else %}
+                    <div class="hidden lg:flex items-center space-x-4">
+                        <a
+                            href="/logout"
+                            class="inline-block rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-600/90"
+                            >Log out</a
+                        >
+                    </div>
+                    {% endif %}
 
                     <!-- Filter Button (Mobile) -->
                     <button
@@ -95,5 +105,5 @@
         <footer></footer>
         {% block script %} {% endblock %}
     </body>
-    <!-- <script src="/htmx.min.js"></script> -->
+    <script src="/htmx.min.js"></script>
 </html>
