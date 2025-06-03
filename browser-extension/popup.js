@@ -1,3 +1,5 @@
+const browserAPI = typeof browser !== "undefined" ? browser : chrome;
+
 document.addEventListener("DOMContentLoaded", async () => {
   const loginForm = document.getElementById("loginForm");
   const loggedIn = document.getElementById("loggedIn");
@@ -25,12 +27,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   signupLink.addEventListener("click", (e) => {
     e.preventDefault();
     // Open your website's signup page in a new tab
-    browser.tabs.create({ url: "http://localhost:3000/signup" });
+    browserAPI.tabs.create({ url: "http://localhost:3000/signup" });
   });
 
   async function checkAuthStatus() {
     try {
-      const response = await browser.runtime.sendMessage({
+      const response = await browserAPI.runtime.sendMessage({
         action: "checkAuth",
       });
 
@@ -46,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function handleLogin() {
-    const username = document.getElementById("username").value; // Changed from email
+    const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
     const loginBtn = document.getElementById("loginBtn");
 
@@ -55,9 +57,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     errorDiv.textContent = "";
 
     try {
-      const response = await browser.runtime.sendMessage({
+      const response = await browserAPI.runtime.sendMessage({
         action: "login",
-        credentials: { username, password }, // Changed from email
+        credentials: { username, password },
       });
 
       if (response.success) {
@@ -75,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   async function handleLogout() {
     try {
-      await browser.runtime.sendMessage({ action: "logout" });
+      await browserAPI.runtime.sendMessage({ action: "logout" });
       showLoginForm();
     } catch (error) {
       console.error("Logout failed:", error);
@@ -99,7 +101,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   async function loadPrompts() {
     try {
-      const response = await browser.runtime.sendMessage({
+      const response = await browserAPI.runtime.sendMessage({
         action: "getPrompts",
       });
       if (response.success) {

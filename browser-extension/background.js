@@ -43,60 +43,72 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
     const prompt = userPrompts.find((p) => p.id.toString() === promptId);
 
     if (prompt) {
-      // Insert the prompt directly using executeScript
-      await browser.tabs.executeScript(tab.id, {
-        code: `
-          (function() {
-            const content = ${JSON.stringify(prompt.content)};
-
-            // Find the element that was right-clicked (it should be the active element)
-            let target = document.activeElement;
-
-            // If active element isn't a text input, find the first visible one
-            if (!target || !isTextInput(target)) {
-              const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"], input[type="search"], input[type="url"], textarea, [contenteditable="true"]');
-              target = Array.from(inputs).find(input => input.offsetParent !== null && !input.disabled);
-            }
-
-            function isTextInput(element) {
-              const tagName = element.tagName.toLowerCase();
-              const inputType = element.type ? element.type.toLowerCase() : '';
-              return (
-                tagName === 'textarea' ||
-                (tagName === 'input' && ['text', 'email', 'password', 'search', 'url'].includes(inputType)) ||
-                element.contentEditable === 'true'
-              );
-            }
-
-            if (target && isTextInput(target)) {
-              target.focus();
-
-              if (target.tagName.toLowerCase() === 'textarea' || target.tagName.toLowerCase() === 'input') {
-                const start = target.selectionStart || 0;
-                const end = target.selectionEnd || 0;
-                const currentValue = target.value || '';
-
-                target.value = currentValue.substring(0, start) + content + currentValue.substring(end);
-                target.setSelectionRange(start + content.length, start + content.length);
-
-                target.dispatchEvent(new Event('input', { bubbles: true }));
-              } else {
-                // ContentEditable
-                const selection = window.getSelection();
-                if (selection.rangeCount > 0) {
-                  const range = selection.getRangeAt(0);
-                  range.deleteContents();
-                  range.insertNode(document.createTextNode(content));
-                }
-                target.dispatchEvent(new Event('input', { bubbles: true }));
-              }
-            }
-          })();
-        `,
+      // Use the new scripting API for Firefox V3
+      await browser.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: insertPromptIntoPage,
+        args: [prompt.content],
       });
     }
   }
 });
+
+// Function to be injected into the page
+function insertPromptIntoPage(content) {
+  // Find the element that was right-clicked (it should be the active element)
+  let target = document.activeElement;
+
+  // If active element isn't a text input, find the first visible one
+  if (!target || !isTextInput(target)) {
+    const inputs = document.querySelectorAll(
+      'input[type="text"], input[type="email"], input[type="password"], input[type="search"], input[type="url"], textarea, [contenteditable="true"]',
+    );
+    target = Array.from(inputs).find(
+      (input) => input.offsetParent !== null && !input.disabled,
+    );
+  }
+
+  function isTextInput(element) {
+    const tagName = element.tagName.toLowerCase();
+    const inputType = element.type ? element.type.toLowerCase() : "";
+    return (
+      tagName === "textarea" ||
+      (tagName === "input" &&
+        ["text", "email", "password", "search", "url"].includes(inputType)) ||
+      element.contentEditable === "true"
+    );
+  }
+
+  if (target && isTextInput(target)) {
+    target.focus();
+
+    if (
+      target.tagName.toLowerCase() === "textarea" ||
+      target.tagName.toLowerCase() === "input"
+    ) {
+      const start = target.selectionStart || 0;
+      const end = target.selectionEnd || 0;
+      const currentValue = target.value || "";
+
+      target.value =
+        currentValue.substring(0, start) +
+        content +
+        currentValue.substring(end);
+      target.setSelectionRange(start + content.length, start + content.length);
+
+      target.dispatchEvent(new Event("input", { bubbles: true }));
+    } else {
+      // ContentEditable
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(document.createTextNode(content));
+      }
+      target.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  }
+}
 
 async function createContextMenus() {
   // Remove any existing context menus
