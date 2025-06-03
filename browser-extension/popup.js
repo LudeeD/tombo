@@ -1,3 +1,4 @@
+// Cross-browser compatibility
 const browserAPI = typeof browser !== "undefined" ? browser : chrome;
 
 document.addEventListener("DOMContentLoaded", async () => {

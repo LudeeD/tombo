@@ -1,10 +1,26 @@
+// Cross-browser compatibility
+const browserAPI = typeof browser !== "undefined" ? browser : chrome;
+const isFirefox = typeof browser !== "undefined";
+
 const API_BASE_URL = "http://localhost:3000";
 let userPrompts = [];
 
 // Handle messages from popup and content scripts
-browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Received message:", message.action);
 
+  if (isFirefox) {
+    // Firefox can handle async directly
+    handleMessage(message, sender).then(sendResponse);
+    return true;
+  } else {
+    // Chrome V3 needs this pattern
+    handleMessage(message, sender).then(sendResponse);
+    return true;
+  }
+});
+
+async function handleMessage(message, sender) {
   switch (message.action) {
     case "checkAuth":
       return await checkAuthentication();
@@ -17,20 +33,20 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     default:
       return { error: "Unknown action" };
   }
-});
+}
 
 // Create context menus when extension starts
-browser.runtime.onInstalled.addListener(() => {
+browserAPI.runtime.onInstalled.addListener(() => {
   createContextMenus();
 });
 
 // Also create context menus when browser starts
-browser.runtime.onStartup.addListener(() => {
+browserAPI.runtime.onStartup.addListener(() => {
   createContextMenus();
 });
 
 // Handle context menu clicks
-browser.contextMenus.onClicked.addListener(async (info, tab) => {
+browserAPI.contextMenus.onClicked.addListener(async (info, tab) => {
   console.log("Context menu clicked:", info.menuItemId);
 
   if (info.menuItemId === "refresh-prompts") {
@@ -43,15 +59,40 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
     const prompt = userPrompts.find((p) => p.id.toString() === promptId);
 
     if (prompt) {
-      // Use the new scripting API for Firefox V3
-      await browser.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: insertPromptIntoPage,
-        args: [prompt.content],
-      });
+      await injectPrompt(tab.id, prompt.content);
     }
   }
 });
+
+// Universal script injection function
+async function injectPrompt(tabId, content) {
+  try {
+    // Try modern scripting API first (Chrome always, Firefox 128+)
+    if (browserAPI.scripting && browserAPI.scripting.executeScript) {
+      await browserAPI.scripting.executeScript({
+        target: { tabId: tabId },
+        func: insertPromptIntoPage,
+        args: [content],
+      });
+    }
+    // Fallback to old executeScript API (older Firefox)
+    else if (browserAPI.tabs && browserAPI.tabs.executeScript) {
+      await browserAPI.tabs.executeScript(tabId, {
+        code: `
+          (function() {
+            const content = ${JSON.stringify(content)};
+            ${insertPromptIntoPage.toString()}
+            insertPromptIntoPage(content);
+          })();
+        `,
+      });
+    } else {
+      console.error("No script injection API available");
+    }
+  } catch (error) {
+    console.error("Script injection failed:", error);
+  }
+}
 
 // Function to be injected into the page
 function insertPromptIntoPage(content) {
@@ -112,17 +153,17 @@ function insertPromptIntoPage(content) {
 
 async function createContextMenus() {
   // Remove any existing context menus
-  await browser.contextMenus.removeAll();
+  await browserAPI.contextMenus.removeAll();
 
   // Create parent menu
-  browser.contextMenus.create({
+  browserAPI.contextMenus.create({
     id: "ai-prompts",
     title: "AI Prompts",
     contexts: ["editable"],
   });
 
   // Create loading item initially
-  browser.contextMenus.create({
+  browserAPI.contextMenus.create({
     id: "loading",
     parentId: "ai-prompts",
     title: "Loading prompts...",
@@ -156,14 +197,14 @@ async function loadPromptsForMenu() {
 }
 
 function updateContextMenuForUnauthenticated() {
-  browser.contextMenus.removeAll().then(() => {
-    browser.contextMenus.create({
+  browserAPI.contextMenus.removeAll().then(() => {
+    browserAPI.contextMenus.create({
       id: "ai-prompts",
       title: "AI Prompts",
       contexts: ["editable"],
     });
 
-    browser.contextMenus.create({
+    browserAPI.contextMenus.create({
       id: "login-required",
       parentId: "ai-prompts",
       title: "Please login first",
@@ -174,23 +215,23 @@ function updateContextMenuForUnauthenticated() {
 }
 
 function updateContextMenuForError() {
-  browser.contextMenus.update("loading", {
+  browserAPI.contextMenus.update("loading", {
     title: "Failed to load prompts",
     enabled: false,
   });
 }
 
 function updateContextMenuWithPrompts(prompts) {
-  browser.contextMenus.removeAll().then(() => {
+  browserAPI.contextMenus.removeAll().then(() => {
     // Create parent menu
-    browser.contextMenus.create({
+    browserAPI.contextMenus.create({
       id: "ai-prompts",
       title: "AI Prompts",
       contexts: ["editable"],
     });
 
     if (prompts.length === 0) {
-      browser.contextMenus.create({
+      browserAPI.contextMenus.create({
         id: "no-prompts",
         parentId: "ai-prompts",
         title: "No prompts found",
@@ -207,7 +248,7 @@ function updateContextMenuWithPrompts(prompts) {
           ? prompt.title.substring(0, 50) + "..."
           : prompt.title;
 
-      browser.contextMenus.create({
+      browserAPI.contextMenus.create({
         id: `prompt-${prompt.id}`,
         parentId: "ai-prompts",
         title: title,
@@ -216,14 +257,14 @@ function updateContextMenuWithPrompts(prompts) {
     });
 
     // Add refresh option
-    browser.contextMenus.create({
+    browserAPI.contextMenus.create({
       id: "separator",
       parentId: "ai-prompts",
       type: "separator",
       contexts: ["editable"],
     });
 
-    browser.contextMenus.create({
+    browserAPI.contextMenus.create({
       id: "refresh-prompts",
       parentId: "ai-prompts",
       title: "↻ Refresh prompts",
