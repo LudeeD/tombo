@@ -1,0 +1,224 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+            body {
+                width: 350px;
+                padding: 20px;
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    sans-serif;
+                background: white;
+            }
+
+            .text-3xl {
+                font-size: 1.875rem;
+                line-height: 2.25rem;
+            }
+            .font-extrabold {
+                font-weight: 800;
+            }
+            .text-gray-900 {
+                color: #111827;
+            }
+            .mb-6 {
+                margin-bottom: 1.5rem;
+            }
+
+            .space-y-6 > * + * {
+                margin-top: 1.5rem;
+            }
+
+            .block {
+                display: block;
+            }
+            .text-sm {
+                font-size: 0.875rem;
+                line-height: 1.25rem;
+            }
+            .font-medium {
+                font-weight: 500;
+            }
+            .text-gray-700 {
+                color: #374151;
+            }
+            .mt-1 {
+                margin-top: 0.25rem;
+            }
+
+            .form-input {
+                appearance: none;
+                background-color: #fff;
+                border-color: #d1d5db;
+                border-width: 1px;
+                border-radius: 0.375rem;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.875rem;
+                line-height: 1.25rem;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .form-input:focus {
+                outline: 2px solid transparent;
+                outline-offset: 2px;
+                border-color: #10b981;
+                box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+            }
+
+            .btn-primary {
+                cursor: pointer;
+                display: inline-block;
+                border-radius: 0.75rem;
+                background-color: #059669;
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: white;
+                border: none;
+                width: 100%;
+                transition: background-color 0.2s;
+            }
+
+            .btn-primary:hover {
+                background-color: #047857;
+            }
+
+            .btn-primary:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            .error {
+                color: #dc2626;
+                font-size: 0.875rem;
+                margin-top: 0.5rem;
+            }
+
+            .user-info {
+                background: #f3f4f6;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .mt-2 {
+                margin-top: 0.5rem;
+            }
+            .font-medium {
+                font-weight: 500;
+            }
+            .text-primary {
+                color: #059669;
+            }
+            .hover-underline:hover {
+                text-decoration: underline;
+            }
+
+            .loading,
+            .login-form,
+            .logged-in {
+                display: none;
+            }
+            .show {
+                display: block;
+            }
+
+            hr {
+                margin: 1rem 0;
+                border: none;
+                border-top: 1px solid #e5e7eb;
+            }
+
+            h4 {
+                font-size: 1.125rem;
+                font-weight: 600;
+                margin: 0 0 0.75rem 0;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Loading state -->
+        <div id="loading" class="loading">
+            <p>Checking authentication...</p>
+        </div>
+
+        <!-- Login form -->
+        <div id="loginForm" class="login-form">
+            <h1 class="text-3xl font-extrabold text-gray-900 mb-6">
+                Log in to your account
+            </h1>
+            <form id="authForm" class="space-y-6">
+                <div>
+                    <label
+                        for="username"
+                        class="block text-sm font-medium text-gray-700"
+                    >
+                        Username or Email
+                    </label>
+                    <div class="mt-1">
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            required
+                            autofocus
+                            class="form-input"
+                            placeholder="you@example.com"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <label
+                        for="password"
+                        class="block text-sm font-medium text-gray-700"
+                    >
+                        Password
+                    </label>
+                    <div class="mt-1">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                            class="form-input"
+                            placeholder="Your password"
+                        />
+                    </div>
+                </div>
+
+                <button type="submit" id="loginBtn" class="btn-primary">
+                    Login
+                </button>
+            </form>
+
+            <p class="mt-2">
+                Don't have an account?
+                <a
+                    href="#"
+                    id="signupLink"
+                    class="font-medium text-primary hover-underline"
+                >
+                    Sign Up
+                </a>
+            </p>
+
+            <div id="error" class="error"></div>
+        </div>
+
+        <!-- Logged in state -->
+        <div id="loggedIn" class="logged-in">
+            <div class="user-info">
+                <strong>Welcome back!</strong>
+                <p id="userEmail"></p>
+            </div>
+            <button id="logoutBtn" class="btn-primary">Logout</button>
+            <hr />
+            <h4>Your Prompts</h4>
+            <div id="promptsList">Loading prompts...</div>
+        </div>
+
+        <script src="popup.js"></script>
+    </body>
+</html>

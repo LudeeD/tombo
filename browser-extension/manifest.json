@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Tombo Tower",
+  "version": "1.0",
+  "description": "Access your tombo tower anywhere anytime",
+  "permissions": ["activeTab", "contextMenus", "storage", "cookies"],
+  "host_permissions": ["http://localhost:3000/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AI Prompt Manager"
+  }
+}

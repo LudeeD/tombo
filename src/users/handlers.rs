@@ -1,6 +1,7 @@
 use crate::users::{AuthSession, Credentials};
 use askama::Template;
 use axum::http::StatusCode;
+use axum::{response::Json as ResponseJson, Json};
 use axum::{
     response::{Html, IntoResponse, Redirect},
     Form,
@@ -20,6 +21,8 @@ pub struct LoginTemplate {
 }
 
 pub mod get {
+    use serde_json::{json, Value};
+
     use super::*;
 
     pub async fn login(messages: Messages) -> impl IntoResponse {
@@ -36,6 +39,20 @@ pub mod get {
         };
 
         Html(template.render().expect("demo"))
+    }
+
+    pub async fn profile(auth_session: AuthSession) -> (StatusCode, ResponseJson<Value>) {
+        if let Some(user) = auth_session.user {
+            (
+                StatusCode::OK,
+                ResponseJson(json!({
+                    "id": user.id,
+                    "email": user.email,
+                })),
+            )
+        } else {
+            (StatusCode::NOT_FOUND, ResponseJson(json!({})))
+        }
     }
 
     pub async fn logout(mut auth_session: AuthSession) -> impl IntoResponse {

@@ -1,8 +1,10 @@
+mod api;
 mod db;
 mod prompts;
 mod users;
 
 use axum::{
+    http::{header, HeaderValue, Method},
     routing::{get, post},
     Router,
 };
@@ -16,6 +18,7 @@ use db::{pool_from_env, seed};
 use memory_serve::{load_assets, MemoryServe};
 use sqlx::SqlitePool;
 use time::Duration;
+use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 use tower_sessions::cookie::Key;
 use tower_sessions_sqlx_store::SqliteStore;
 use tracing::info;
@@ -48,7 +51,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let key = Key::generate();
 
     let session_layer = SessionManagerLayer::new(session_store)
-        .with_secure(false)
+        .with_secure(true)
+        .with_same_site(tower_sessions::cookie::SameSite::None)
         .with_expiry(Expiry::OnInactivity(Duration::days(1)))
         .with_signed(key);
 
@@ -56,6 +60,39 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let auth_layer = AuthManagerLayerBuilder::new(backend, session_layer).build();
 
     let state = AppState { pool: pool };
+
+    let prod = String::from("PROD") == std::env::var("ENV").unwrap_or_default();
+    let cors = CorsLayer::new()
+        .allow_origin(AllowOrigin::predicate(
+            move |origin: &HeaderValue, _request_parts| {
+                let origin_str = origin.to_str().unwrap_or("");
+
+                // Always allow browser extensions
+                if origin_str.starts_with("moz-extension://")
+                    || origin_str.starts_with("chrome-extension://")
+                {
+                    return true;
+                }
+
+                // Allow production domain
+                if origin_str == "https://tombotower.eu" {
+                    return true;
+                }
+
+                // Allow localhost in development
+                if !prod
+                    && (origin_str.starts_with("http://localhost")
+                        || origin_str.starts_with("http://127.0.0.1"))
+                {
+                    return true;
+                }
+
+                false
+            },
+        ))
+        .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
+        .allow_headers([header::CONTENT_TYPE, header::ACCEPT, header::AUTHORIZATION])
+        .allow_credentials(true);
 
     let static_memory_router = MemoryServe::new(load_assets!("./public")).into_router();
 
@@ -66,6 +103,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             get(prompts::handlers::add_prompt).post(prompts::handlers::create),
         )
         .route_layer(login_required!(Backend, login_url = "/login"))
+        .route("/api/prompts", get(api::prompts::list))
+        .route("/api/profile", get(users::handlers::get::profile))
         .route("/", get(prompts::handlers::list))
         .route("/prompt/{prompt_id}", get(prompts::handlers::detail))
         .route(
@@ -89,6 +128,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_state(state)
         .merge(static_memory_router)
         .layer(MessagesManagerLayer)
+        .layer(cors)
         .layer(auth_layer);
 
     info!("Starting server...");
