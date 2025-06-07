@@ -19,6 +19,12 @@ function RootComponent() {
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
                 <>
+                  <Link
+                    to="/dashboard"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all duration-200"
+                  >
+                    Dashboard
+                  </Link>
                   <span className="text-sm text-gray-600 hidden md:block">
                     Welcome back, <span className="font-medium text-gray-800">{user?.username}</span>
                   </span>
