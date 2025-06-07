@@ -27,8 +27,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Handle signup link click
   signupLink.addEventListener("click", (e) => {
     e.preventDefault();
-    // Open your website's signup page in a new tab
-    browserAPI.tabs.create({ url: "http://localhost:3000/signup" });
+    // Open your website's login page in a new tab
+    browserAPI.tabs.create({ url: "http://localhost:3000/login" });
   });
 
   async function checkAuthStatus() {

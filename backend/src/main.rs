@@ -1,16 +1,15 @@
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use axum::{
-    extract::State,
+    extract::{Path, Query, State},
     http::{header, HeaderValue, Method, StatusCode},
     response::Json,
     routing::{get, post},
     Router,
 };
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{encode, EncodingKey, Header};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use sqlx::{Row, SqlitePool};
-use std::collections::HashSet;
 use time::{Duration, OffsetDateTime};
 use tower_http::cors::{AllowOrigin, CorsLayer};
 use tracing::info;
@@ -58,6 +57,11 @@ struct Prompt {
     created_at: String,
 }
 
+#[derive(Debug, Deserialize)]
+struct PromptsQuery {
+    limit: Option<i64>,
+}
+
 #[derive(Debug, Clone)]
 struct AppState {
     db: SqlitePool,
@@ -84,17 +88,18 @@ fn generate_jwt(user_id: &str, is_refresh: bool) -> Result<String, jsonwebtoken:
     )
 }
 
-fn verify_jwt(token: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
-    let mut validation = Validation::new(Algorithm::HS256);
-    validation.required_spec_claims = HashSet::new();
+// Note: JWT verification can be added later for protected routes
+// fn verify_jwt(token: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
+//     let mut validation = Validation::new(Algorithm::HS256);
+//     validation.required_spec_claims = HashSet::new();
 
-    decode::<Claims>(
-        token,
-        &DecodingKey::from_secret(JWT_SECRET.as_ref()),
-        &validation,
-    )
-    .map(|data| data.claims)
-}
+//     decode::<Claims>(
+//         token,
+//         &DecodingKey::from_secret(JWT_SECRET.as_ref()),
+//         &validation,
+//     )
+//     .map(|data| data.claims)
+// }
 
 async fn login_handler(
     State(state): State<AppState>,
@@ -176,9 +181,16 @@ async fn login_handler(
 }
 
 async fn get_prompts_handler(
+    Query(params): Query<PromptsQuery>,
     State(state): State<AppState>,
 ) -> Result<Json<Vec<Prompt>>, (StatusCode, Json<ErrorResponse>)> {
-    let rows = sqlx::query("SELECT id, title, content, description, created_at FROM prompts ORDER BY created_at DESC")
+    let query = if let Some(limit) = params.limit {
+        format!("SELECT id, title, content, description, created_at FROM prompts ORDER BY created_at DESC LIMIT {}", limit)
+    } else {
+        "SELECT id, title, content, description, created_at FROM prompts ORDER BY created_at DESC".to_string()
+    };
+
+    let rows = sqlx::query(&query)
         .fetch_all(&state.db)
         .await
         .map_err(|_| {
@@ -202,6 +214,43 @@ async fn get_prompts_handler(
         .collect();
 
     Ok(Json(prompts))
+}
+
+async fn get_prompt_by_id_handler(
+    Path(id): Path<i64>,
+    State(state): State<AppState>,
+) -> Result<Json<Prompt>, (StatusCode, Json<ErrorResponse>)> {
+    let row = sqlx::query("SELECT id, title, content, description, created_at FROM prompts WHERE id = ?")
+        .bind(id)
+        .fetch_optional(&state.db)
+        .await
+        .map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ErrorResponse {
+                    error: "Database error".to_string(),
+                }),
+            )
+        })?;
+
+    let row = row.ok_or_else(|| {
+        (
+            StatusCode::NOT_FOUND,
+            Json(ErrorResponse {
+                error: "Prompt not found".to_string(),
+            }),
+        )
+    })?;
+
+    let prompt = Prompt {
+        id: row.get("id"),
+        title: row.get("title"),
+        content: row.get("content"),
+        description: row.get("description"),
+        created_at: row.get("created_at"),
+    };
+
+    Ok(Json(prompt))
 }
 
 #[tokio::main]
@@ -252,6 +301,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
         .route("/session", post(login_handler))
         .route("/prompts", get(get_prompts_handler))
+        .route("/prompts/{id}", get(get_prompt_by_id_handler))
         .layer(cors)
         .with_state(state);
 

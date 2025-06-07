@@ -200,8 +200,10 @@ function Index() {
                     {prompt.description}
                   </p>
                   <Link
-                    to="/prompts"
+                    to="/prompt/$id"
+                    params={{ id: prompt.id.toString() }}
                     className="inline-flex items-center text-emerald-600 hover:text-emerald-700 font-medium text-sm"
+                    onClick={() => console.log('Navigating to prompt from landing:', prompt.id)}
                   >
                     View Details
                     <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

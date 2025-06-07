@@ -4,6 +4,8 @@ const isFirefox = typeof browser !== "undefined";
 
 const API_BASE_URL = "http://localhost:3000";
 let userPrompts = [];
+let accessToken = null;
+let refreshToken = null;
 
 // Handle messages from popup and content scripts
 browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -275,20 +277,34 @@ function updateContextMenuWithPrompts(prompts) {
 
 async function checkAuthentication() {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/profile`, {
+    // Load tokens from storage
+    await loadTokensFromStorage();
+    
+    if (!accessToken) {
+      return { authenticated: false };
+    }
+
+    // Try to verify token by making a simple request
+    const response = await fetch(`${API_BASE_URL}/prompts`, {
       method: "GET",
-      credentials: "include",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`,
       },
     });
 
     if (response.ok) {
-      const user = await response.json();
-      return { authenticated: true, user };
-    } else {
-      return { authenticated: false };
+      // Token is valid, extract user info from token payload if needed
+      return { authenticated: true, user: { username: "User" } };
+    } else if (response.status === 401) {
+      // Try to refresh token
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        return { authenticated: true, user: { username: "User" } };
+      }
     }
+    
+    return { authenticated: false };
   } catch (error) {
     console.error("Auth check error:", error);
     return { authenticated: false };
@@ -297,34 +313,34 @@ async function checkAuthentication() {
 
 async function performLogin(credentials) {
   try {
-    const params = new URLSearchParams();
-    params.append("username", credentials.username);
-    params.append("password", credentials.password);
-
-    const response = await fetch(`${API_BASE_URL}/login`, {
+    const response = await fetch(`${API_BASE_URL}/session`, {
       method: "POST",
-      credentials: "include",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json",
       },
-      body: params,
+      body: JSON.stringify({
+        username: credentials.username,
+        password: credentials.password,
+      }),
     });
 
     if (response.ok) {
-      // After successful login, get user profile
-      const profileResponse = await fetch(`${API_BASE_URL}/profile`, {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (profileResponse.ok) {
-        const user = await profileResponse.json();
-        return { success: true, user };
-      }
-
-      return { success: true, user: { email: credentials.email } };
+      const data = await response.json();
+      
+      // Store tokens
+      accessToken = data.access_token;
+      refreshToken = data.refresh_token;
+      await saveTokensToStorage();
+      
+      const user = {
+        id: data.user.id,
+        username: data.user.username,
+      };
+      
+      return { success: true, user };
     } else {
-      return { success: false, error: "Login failed" };
+      const errorData = await response.json().catch(() => ({}));
+      return { success: false, error: errorData.error || "Login failed" };
     }
   } catch (error) {
     console.error("Login error:", error);
@@ -334,11 +350,11 @@ async function performLogin(credentials) {
 
 async function performLogout() {
   try {
-    await fetch(`${API_BASE_URL}/logout`, {
-      method: "GET",
-      credentials: "include",
-    });
-
+    // Clear tokens from memory and storage
+    accessToken = null;
+    refreshToken = null;
+    await clearTokensFromStorage();
+    
     return { success: true };
   } catch (error) {
     console.error("Logout error:", error);
@@ -348,14 +364,37 @@ async function performLogout() {
 
 async function getPrompts() {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/prompts`, {
+    await loadTokensFromStorage();
+    
+    if (!accessToken) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    let response = await fetch(`${API_BASE_URL}/prompts`, {
       method: "GET",
-      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`,
+      },
     });
 
+    // If unauthorized, try to refresh token
+    if (response.status === 401) {
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        response = await fetch(`${API_BASE_URL}/prompts`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${accessToken}`,
+          },
+        });
+      }
+    }
+
     if (response.ok) {
-      const data = await response.json();
-      return { success: true, prompts: data.prompts };
+      const prompts = await response.json();
+      return { success: true, prompts };
     } else {
       return { success: false, error: "Failed to fetch prompts" };
     }
@@ -363,4 +402,65 @@ async function getPrompts() {
     console.error("Get prompts error:", error);
     return { success: false, error: "Network error" };
   }
+}
+
+// Token management functions
+async function loadTokensFromStorage() {
+  try {
+    const result = await browserAPI.storage.local.get(['accessToken', 'refreshToken']);
+    accessToken = result.accessToken || null;
+    refreshToken = result.refreshToken || null;
+  } catch (error) {
+    console.error("Failed to load tokens from storage:", error);
+  }
+}
+
+async function saveTokensToStorage() {
+  try {
+    await browserAPI.storage.local.set({
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    console.error("Failed to save tokens to storage:", error);
+  }
+}
+
+async function clearTokensFromStorage() {
+  try {
+    await browserAPI.storage.local.remove(['accessToken', 'refreshToken']);
+  } catch (error) {
+    console.error("Failed to clear tokens from storage:", error);
+  }
+}
+
+async function refreshAccessToken() {
+  if (!refreshToken) {
+    return false;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/session/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      accessToken = data.access_token;
+      await saveTokensToStorage();
+      return true;
+    }
+  } catch (error) {
+    console.error("Token refresh failed:", error);
+  }
+
+  // Clear invalid tokens
+  accessToken = null;
+  refreshToken = null;
+  await clearTokensFromStorage();
+  return false;
 }

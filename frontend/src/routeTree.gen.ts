@@ -15,6 +15,7 @@ import { Route as PromptsImport } from './routes/prompts'
 import { Route as LoginImport } from './routes/login'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
+import { Route as PromptIdImport } from './routes/prompt.$id'
 
 // Create/Update Routes
 
@@ -39,6 +40,12 @@ const AboutRoute = AboutImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PromptIdRoute = PromptIdImport.update({
+  id: '/prompt/$id',
+  path: '/prompt/$id',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -74,6 +81,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PromptsImport
       parentRoute: typeof rootRoute
     }
+    '/prompt/$id': {
+      id: '/prompt/$id'
+      path: '/prompt/$id'
+      fullPath: '/prompt/$id'
+      preLoaderRoute: typeof PromptIdImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -84,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/prompts': typeof PromptsRoute
+  '/prompt/$id': typeof PromptIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -91,6 +106,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/prompts': typeof PromptsRoute
+  '/prompt/$id': typeof PromptIdRoute
 }
 
 export interface FileRoutesById {
@@ -99,14 +115,15 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/prompts': typeof PromptsRoute
+  '/prompt/$id': typeof PromptIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/login' | '/prompts'
+  fullPaths: '/' | '/about' | '/login' | '/prompts' | '/prompt/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/login' | '/prompts'
-  id: '__root__' | '/' | '/about' | '/login' | '/prompts'
+  to: '/' | '/about' | '/login' | '/prompts' | '/prompt/$id'
+  id: '__root__' | '/' | '/about' | '/login' | '/prompts' | '/prompt/$id'
   fileRoutesById: FileRoutesById
 }
 
@@ -115,6 +132,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   LoginRoute: typeof LoginRoute
   PromptsRoute: typeof PromptsRoute
+  PromptIdRoute: typeof PromptIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -122,6 +140,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   LoginRoute: LoginRoute,
   PromptsRoute: PromptsRoute,
+  PromptIdRoute: PromptIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -137,7 +156,8 @@ export const routeTree = rootRoute
         "/",
         "/about",
         "/login",
-        "/prompts"
+        "/prompts",
+        "/prompt/$id"
       ]
     },
     "/": {
@@ -151,6 +171,9 @@ export const routeTree = rootRoute
     },
     "/prompts": {
       "filePath": "prompts.tsx"
+    },
+    "/prompt/$id": {
+      "filePath": "prompt.$id.tsx"
     }
   }
 }

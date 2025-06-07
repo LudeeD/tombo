@@ -145,6 +145,10 @@ class ApiClient {
   async getTopPrompts(limit: number = 5): Promise<Prompt[]> {
     return this.get<Prompt[]>(`/prompts?limit=${limit}`)
   }
+
+  async getPromptById(id: number): Promise<Prompt> {
+    return this.get<Prompt>(`/prompts/${id}`)
+  }
 }
 
 export const apiClient = new ApiClient()

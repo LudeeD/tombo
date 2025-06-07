@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { apiClient, type Prompt } from '../lib/api'
 
@@ -48,6 +48,17 @@ function Prompts() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-800 mb-2">Prompts</h1>
         <p className="text-neutral-600">Browse and discover AI prompts</p>
+        {/* Test link */}
+        <div className="mt-4 p-3 bg-yellow-100 rounded-lg">
+          <p className="text-sm text-yellow-800 mb-2">Test Route (remove this later):</p>
+          <Link 
+            to="/prompt/$id" 
+            params={{ id: "1" }}
+            className="text-blue-600 hover:text-blue-700 underline"
+          >
+            Test Link to Prompt ID 1
+          </Link>
+        </div>
       </div>
 
       {prompts.length === 0 ? (
@@ -74,9 +85,14 @@ function Prompts() {
                 <span>
                   {new Date(prompt.created_at).toLocaleDateString()}
                 </span>
-                <button className="text-emerald-600 hover:text-emerald-700 font-medium">
+                <Link 
+                  to="/prompt/$id" 
+                  params={{ id: prompt.id.toString() }}
+                  className="text-emerald-600 hover:text-emerald-700 font-medium"
+                  onClick={() => console.log('Navigating to prompt:', prompt.id)}
+                >
                   View Details
-                </button>
+                </Link>
               </div>
             </div>
           ))}
