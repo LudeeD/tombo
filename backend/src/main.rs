@@ -49,12 +49,33 @@ struct ErrorResponse {
 }
 
 #[derive(Debug, Serialize)]
+struct Tag {
+    id: i64,
+    name: String,
+    bg_color: String,
+    text_color: String,
+    kind: String,
+}
+
+#[derive(Debug, Serialize)]
+struct PromptAuthor {
+    id: i64,
+    username: String,
+}
+
+#[derive(Debug, Serialize)]
 struct Prompt {
     id: i64,
     title: String,
     content: String,
     description: String,
     created_at: String,
+    user_id: Option<i64>,
+    parent_prompt_id: Option<i64>,
+    author: Option<PromptAuthor>,
+    tags: Vec<Tag>,
+    star_count: i64,
+    is_starred: Option<bool>, // Will be Some(bool) if user is authenticated
 }
 
 #[derive(Debug, Deserialize)]
@@ -184,11 +205,21 @@ async fn get_prompts_handler(
     Query(params): Query<PromptsQuery>,
     State(state): State<AppState>,
 ) -> Result<Json<Vec<Prompt>>, (StatusCode, Json<ErrorResponse>)> {
-    let query = if let Some(limit) = params.limit {
-        format!("SELECT id, title, content, description, created_at FROM prompts ORDER BY created_at DESC LIMIT {}", limit)
+    let limit_clause = if let Some(limit) = params.limit {
+        format!("LIMIT {}", limit)
     } else {
-        "SELECT id, title, content, description, created_at FROM prompts ORDER BY created_at DESC".to_string()
+        String::new()
     };
+
+    let query = format!(
+        "SELECT p.id, p.title, p.content, p.description, p.created_at, p.user_id, p.parent_prompt_id, 
+                u.username as author_username,
+                (SELECT COUNT(*) FROM prompt_stars ps WHERE ps.prompt_id = p.id) as star_count
+         FROM prompts p
+         LEFT JOIN users u ON p.user_id = u.id
+         ORDER BY p.created_at DESC
+         {}", limit_clause
+    );
 
     let rows = sqlx::query(&query)
         .fetch_all(&state.db)
@@ -202,16 +233,71 @@ async fn get_prompts_handler(
             )
         })?;
 
-    let prompts: Vec<Prompt> = rows
-        .into_iter()
-        .map(|row| Prompt {
+    let mut prompts = Vec::new();
+    
+    for row in rows {
+        let prompt_id: i64 = row.get("id");
+        
+        // Fetch tags for each prompt (could be optimized with a single query for all prompts)
+        let tag_rows = sqlx::query(
+            "SELECT t.id, t.name, t.bg_color, t.text_color, t.kind
+             FROM tags t
+             JOIN prompt_tags pt ON t.id = pt.tag_id
+             WHERE pt.prompt_id = ?"
+        )
+        .bind(prompt_id)
+        .fetch_all(&state.db)
+        .await
+        .map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ErrorResponse {
+                    error: "Database error fetching tags".to_string(),
+                }),
+            )
+        })?;
+
+        let tags: Vec<Tag> = tag_rows
+            .into_iter()
+            .map(|tag_row| Tag {
+                id: tag_row.get("id"),
+                name: tag_row.get("name"),
+                bg_color: tag_row.get("bg_color"),
+                text_color: tag_row.get("text_color"),
+                kind: tag_row.get("kind"),
+            })
+            .collect();
+
+        // Build author information if available
+        let author = if let Some(user_id) = row.get::<Option<i64>, _>("user_id") {
+            if let Some(username) = row.get::<Option<String>, _>("author_username") {
+                Some(PromptAuthor {
+                    id: user_id,
+                    username,
+                })
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        let prompt = Prompt {
             id: row.get("id"),
             title: row.get("title"),
             content: row.get("content"),
             description: row.get("description"),
             created_at: row.get("created_at"),
-        })
-        .collect();
+            user_id: row.get("user_id"),
+            parent_prompt_id: row.get("parent_prompt_id"),
+            author,
+            tags,
+            star_count: row.get("star_count"),
+            is_starred: None, // TODO: Check if current user has starred this prompt
+        };
+
+        prompts.push(prompt);
+    }
 
     Ok(Json(prompts))
 }
@@ -220,20 +306,27 @@ async fn get_prompt_by_id_handler(
     Path(id): Path<i64>,
     State(state): State<AppState>,
 ) -> Result<Json<Prompt>, (StatusCode, Json<ErrorResponse>)> {
-    let row = sqlx::query("SELECT id, title, content, description, created_at FROM prompts WHERE id = ?")
-        .bind(id)
-        .fetch_optional(&state.db)
-        .await
-        .map_err(|_| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ErrorResponse {
-                    error: "Database error".to_string(),
-                }),
-            )
-        })?;
+    // Fetch the main prompt data with author information
+    let prompt_row = sqlx::query(
+        "SELECT p.id, p.title, p.content, p.description, p.created_at, p.user_id, p.parent_prompt_id, 
+                u.username as author_username
+         FROM prompts p
+         LEFT JOIN users u ON p.user_id = u.id
+         WHERE p.id = ?"
+    )
+    .bind(id)
+    .fetch_optional(&state.db)
+    .await
+    .map_err(|_| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ErrorResponse {
+                error: "Database error".to_string(),
+            }),
+        )
+    })?;
 
-    let row = row.ok_or_else(|| {
+    let prompt_row = prompt_row.ok_or_else(|| {
         (
             StatusCode::NOT_FOUND,
             Json(ErrorResponse {
@@ -242,12 +335,78 @@ async fn get_prompt_by_id_handler(
         )
     })?;
 
+    // Fetch tags for this prompt
+    let tag_rows = sqlx::query(
+        "SELECT t.id, t.name, t.bg_color, t.text_color, t.kind
+         FROM tags t
+         JOIN prompt_tags pt ON t.id = pt.tag_id
+         WHERE pt.prompt_id = ?"
+    )
+    .bind(id)
+    .fetch_all(&state.db)
+    .await
+    .map_err(|_| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ErrorResponse {
+                error: "Database error fetching tags".to_string(),
+            }),
+        )
+    })?;
+
+    let tags: Vec<Tag> = tag_rows
+        .into_iter()
+        .map(|row| Tag {
+            id: row.get("id"),
+            name: row.get("name"),
+            bg_color: row.get("bg_color"),
+            text_color: row.get("text_color"),
+            kind: row.get("kind"),
+        })
+        .collect();
+
+    // Count stars for this prompt
+    let star_count_row = sqlx::query("SELECT COUNT(*) as star_count FROM prompt_stars WHERE prompt_id = ?")
+        .bind(id)
+        .fetch_one(&state.db)
+        .await
+        .map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ErrorResponse {
+                    error: "Database error counting stars".to_string(),
+                }),
+            )
+        })?;
+
+    let star_count: i64 = star_count_row.get("star_count");
+
+    // Build author information if available
+    let author = if let Some(user_id) = prompt_row.get::<Option<i64>, _>("user_id") {
+        if let Some(username) = prompt_row.get::<Option<String>, _>("author_username") {
+            Some(PromptAuthor {
+                id: user_id,
+                username,
+            })
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
     let prompt = Prompt {
-        id: row.get("id"),
-        title: row.get("title"),
-        content: row.get("content"),
-        description: row.get("description"),
-        created_at: row.get("created_at"),
+        id: prompt_row.get("id"),
+        title: prompt_row.get("title"),
+        content: prompt_row.get("content"),
+        description: prompt_row.get("description"),
+        created_at: prompt_row.get("created_at"),
+        user_id: prompt_row.get("user_id"),
+        parent_prompt_id: prompt_row.get("parent_prompt_id"),
+        author,
+        tags,
+        star_count,
+        is_starred: None, // TODO: Check if current user has starred this prompt
     };
 
     Ok(Json(prompt))

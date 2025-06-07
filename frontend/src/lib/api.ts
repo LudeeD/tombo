@@ -1,11 +1,30 @@
 import config from '../config/env'
 
+export interface Tag {
+  id: number
+  name: string
+  bg_color: string
+  text_color: string
+  kind: string
+}
+
+export interface PromptAuthor {
+  id: number
+  username: string
+}
+
 export interface Prompt {
   id: number
   title: string
   content: string
   description: string
   created_at: string
+  user_id?: number
+  parent_prompt_id?: number
+  author?: PromptAuthor
+  tags: Tag[]
+  star_count: number
+  is_starred?: boolean
 }
 
 class ApiClient {

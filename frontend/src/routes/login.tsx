@@ -15,7 +15,7 @@ function Login() {
   const navigate = useNavigate()
 
   if (isAuthenticated) {
-    navigate({ to: '/' })
+    navigate({ to: '/prompts' })
     return null
   }
 
@@ -26,7 +26,7 @@ function Login() {
 
     try {
       await login(username, password)
-      navigate({ to: '/' })
+      navigate({ to: '/prompts' })
     } catch (error) {
       setError('Invalid username or password')
     } finally {
