@@ -49,6 +49,13 @@ struct ErrorResponse {
 }
 
 #[derive(Debug, Serialize)]
+struct HealthResponse {
+    status: String,
+    version: String,
+    timestamp: String,
+}
+
+#[derive(Debug, Serialize)]
 struct Tag {
     id: i64,
     name: String,
@@ -121,6 +128,17 @@ fn generate_jwt(user_id: &str, is_refresh: bool) -> Result<String, jsonwebtoken:
 //     )
 //     .map(|data| data.claims)
 // }
+
+async fn health_handler() -> Json<HealthResponse> {
+    let version = env!("CARGO_PKG_VERSION");
+    let timestamp = OffsetDateTime::now_utc().to_string();
+    
+    Json(HealthResponse {
+        status: "healthy".to_string(),
+        version: version.to_string(),
+        timestamp,
+    })
+}
 
 async fn login_handler(
     State(state): State<AppState>,
@@ -458,6 +476,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .allow_credentials(true);
 
     let app = Router::new()
+        .route("/health", get(health_handler))
         .route("/session", post(login_handler))
         .route("/prompts", get(get_prompts_handler))
         .route("/prompts/{id}", get(get_prompt_by_id_handler))
