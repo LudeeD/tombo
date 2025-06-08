@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useSearch } from '@tanstack/react-router'
 import { useEffect, useState, useMemo } from 'react'
-import { apiClient, type Prompt } from '../lib/api'
+import { type Prompt } from '../lib/api'
 
 type SearchParams = {
   q?: string
@@ -19,7 +19,7 @@ export const Route = createFileRoute('/prompts')({
   }),
 })
 
-interface ExtendedPrompt extends Prompt {
+interface ExtendedPrompt extends Omit<Prompt, 'author' | 'tags'> {
   category: string
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced'
   usage_count: number
@@ -55,7 +55,8 @@ function Prompts() {
       author: "DevMaster",
       rating: 4.9,
       tags: ["code-review", "security", "performance", "best-practices"],
-      created_at: "2024-12-15T10:30:00Z"
+      created_at: "2024-12-15T10:30:00Z",
+      star_count: 145
     },
     {
       id: 2,
@@ -69,7 +70,8 @@ function Prompts() {
       author: "TechWriter",
       rating: 4.7,
       tags: ["documentation", "api", "technical-writing"],
-      created_at: "2024-12-10T15:45:00Z"
+      created_at: "2024-12-10T15:45:00Z",
+      star_count: 89
     },
     {
       id: 3,
@@ -83,7 +85,8 @@ function Prompts() {
       author: "SQLPro",
       rating: 4.8,
       tags: ["sql", "database", "performance", "optimization"],
-      created_at: "2024-12-08T09:20:00Z"
+      created_at: "2024-12-08T09:20:00Z",
+      star_count: 67
     },
     {
       id: 4,
@@ -97,7 +100,8 @@ function Prompts() {
       author: "MarketingGuru",
       rating: 4.6,
       tags: ["email-marketing", "conversion", "psychology", "campaigns"],
-      created_at: "2024-12-05T14:15:00Z"
+      created_at: "2024-12-05T14:15:00Z",
+      star_count: 78
     },
     {
       id: 5,
@@ -111,7 +115,8 @@ function Prompts() {
       author: "ReactExpert",
       rating: 4.9,
       tags: ["react", "typescript", "architecture", "components"],
-      created_at: "2024-12-03T11:30:00Z"
+      created_at: "2024-12-03T11:30:00Z",
+      star_count: 134
     },
     {
       id: 6,
@@ -125,7 +130,8 @@ function Prompts() {
       author: "UXResearcher",
       rating: 4.5,
       tags: ["ux", "research", "interviews", "user-needs"],
-      created_at: "2024-12-01T16:20:00Z"
+      created_at: "2024-12-01T16:20:00Z",
+      star_count: 45
     },
     {
       id: 7,
@@ -139,7 +145,8 @@ function Prompts() {
       author: "FinanceAnalyst",
       rating: 4.7,
       tags: ["finance", "analysis", "reporting", "insights"],
-      created_at: "2024-11-28T13:45:00Z"
+      created_at: "2024-11-28T13:45:00Z",
+      star_count: 92
     },
     {
       id: 8,
@@ -153,7 +160,8 @@ function Prompts() {
       author: "SocialMediaPro",
       rating: 4.6,
       tags: ["social-media", "content-strategy", "engagement", "reach"],
-      created_at: "2024-11-25T10:15:00Z"
+      created_at: "2024-11-25T10:15:00Z",
+      star_count: 103
     },
     {
       id: 9,
@@ -167,7 +175,8 @@ function Prompts() {
       author: "DataVizExpert",
       rating: 4.8,
       tags: ["data-visualization", "charts", "insights", "storytelling"],
-      created_at: "2024-11-22T09:30:00Z"
+      created_at: "2024-11-22T09:30:00Z",
+      star_count: 56
     },
     {
       id: 10,
@@ -181,7 +190,8 @@ function Prompts() {
       author: "SupportSpecialist",
       rating: 4.4,
       tags: ["chatbot", "customer-support", "ai-training", "empathy"],
-      created_at: "2024-11-20T14:45:00Z"
+      created_at: "2024-11-20T14:45:00Z",
+      star_count: 31
     },
     {
       id: 11,
@@ -195,7 +205,8 @@ function Prompts() {
       author: "SEOSpecialist",
       rating: 4.5,
       tags: ["seo", "content-optimization", "search-engines", "readability"],
-      created_at: "2024-11-18T12:20:00Z"
+      created_at: "2024-11-18T12:20:00Z",
+      star_count: 84
     },
     {
       id: 12,
@@ -209,7 +220,8 @@ function Prompts() {
       author: "ProjectManager",
       rating: 4.6,
       tags: ["risk-assessment", "project-management", "mitigation", "planning"],
-      created_at: "2024-11-15T08:30:00Z"
+      created_at: "2024-11-15T08:30:00Z",
+      star_count: 72
     },
     {
       id: 13,
@@ -223,7 +235,8 @@ function Prompts() {
       author: "SecurityExpert",
       rating: 4.9,
       tags: ["api-security", "audit", "microservices", "security"],
-      created_at: "2024-11-12T15:10:00Z"
+      created_at: "2024-11-12T15:10:00Z",
+      star_count: 118
     },
     {
       id: 14,
@@ -237,7 +250,8 @@ function Prompts() {
       author: "ProductDesigner",
       rating: 4.7,
       tags: ["onboarding", "user-experience", "activation", "retention"],
-      created_at: "2024-11-10T11:25:00Z"
+      created_at: "2024-11-10T11:25:00Z",
+      star_count: 63
     },
     {
       id: 15,
@@ -251,7 +265,8 @@ function Prompts() {
       author: "PythonDev",
       rating: 4.6,
       tags: ["python", "refactoring", "performance", "clean-code"],
-      created_at: "2024-11-08T13:40:00Z"
+      created_at: "2024-11-08T13:40:00Z",
+      star_count: 95
     }
   ]
 
