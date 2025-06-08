@@ -126,25 +126,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "backend"
-version = "0.1.0"
-dependencies = [
- "argon2",
- "axum",
- "jsonwebtoken",
- "once_cell",
- "serde",
- "serde_json",
- "sqlx",
- "time",
- "tokio",
- "tower-http",
- "tracing",
- "tracing-subscriber",
- "uuid",
-]
-
-[[package]]
 name = "backtrace"
 version = "0.3.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1918,6 +1899,25 @@ dependencies = [
  "futures-sink",
  "pin-project-lite",
  "tokio",
+]
+
+[[package]]
+name = "tombo"
+version = "0.1.0"
+dependencies = [
+ "argon2",
+ "axum",
+ "jsonwebtoken",
+ "once_cell",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "time",
+ "tokio",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]
