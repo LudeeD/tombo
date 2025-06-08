@@ -15,6 +15,8 @@ function PromptDetails() {
   const [activeTab, setActiveTab] = useState('content')
   const [rating, setRating] = useState(0)
   const [isFavorited, setIsFavorited] = useState(false)
+  const [expandedVariations, setExpandedVariations] = useState<Set<number>>(new Set())
+  const [showCopyNotification, setShowCopyNotification] = useState(false)
 
   useEffect(() => {
     const fetchPrompt = async () => {
@@ -52,6 +54,39 @@ function PromptDetails() {
   const toggleFavorite = () => {
     setIsFavorited(!isFavorited)
     // TODO: Send favorite status to API
+  }
+
+  const toggleVariationExpansion = (index: number) => {
+    const newExpanded = new Set(expandedVariations)
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index)
+    } else {
+      newExpanded.add(index)
+    }
+    setExpandedVariations(newExpanded)
+  }
+
+  const copyAndOpenAI = async (url: string, platform: string) => {
+    if (!prompt?.content) {
+      window.open(url, '_blank')
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(prompt.content)
+      setShowCopyNotification(true)
+      setTimeout(() => setShowCopyNotification(false), 3000)
+      
+      // Longer delay to allow user to read the notification
+      setTimeout(() => {
+        window.open(url, '_blank')
+      }, 1500)
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err)
+      // Fallback: try to show a browser alert instead
+      alert(`Prompt content copied! Opening ${platform}...`)
+      window.open(url, '_blank')
+    }
   }
 
   const handleExport = (format: string) => {
@@ -95,9 +130,68 @@ function PromptDetails() {
   const metadata = getRealMetadata()
 
   const mockVariations = [
-    { title: 'Shorter Version', content: 'Brief version of the prompt...' },
-    { title: 'Technical Focus', content: 'Technical variation of the prompt...' },
-    { title: 'Creative Angle', content: 'Creative variation of the prompt...' }
+    { 
+      title: 'Shorter Version', 
+      content: 'Brief version of the prompt...', 
+      fullContent: `Please review the following code for basic issues:
+
+1. Check for syntax errors
+2. Look for obvious bugs
+3. Suggest simple improvements
+
+Focus on the most critical issues only. Keep feedback concise and actionable.`
+    },
+    { 
+      title: 'Technical Focus', 
+      content: 'Technical variation of the prompt...', 
+      fullContent: `Please conduct a comprehensive technical review of the following code:
+
+SECURITY ANALYSIS:
+- Check for common vulnerabilities (SQL injection, XSS, CSRF)
+- Review authentication and authorization mechanisms
+- Analyze input validation and sanitization
+
+PERFORMANCE REVIEW:
+- Identify performance bottlenecks
+- Review database queries for optimization opportunities
+- Check for memory leaks and inefficient algorithms
+
+ARCHITECTURE ASSESSMENT:
+- Evaluate code structure and organization
+- Review design patterns implementation
+- Assess scalability considerations
+
+BEST PRACTICES:
+- Check compliance with coding standards
+- Review error handling and logging
+- Assess test coverage and quality
+
+Please provide detailed feedback with specific examples and recommendations.`
+    },
+    { 
+      title: 'Creative Angle', 
+      content: 'Creative variation of the prompt...', 
+      fullContent: `Let's approach this code review with fresh eyes and creative thinking:
+
+🎨 CREATIVE CODE REVIEW APPROACH:
+
+Think like a storyteller - what story does this code tell?
+- Is the narrative clear and logical?
+- Are there plot holes (bugs) in the story?
+- Does each function play its role effectively?
+
+Consider the user experience:
+- How would users interact with this code?
+- What emotions might they experience?
+- Are there delightful surprises or frustrating obstacles?
+
+Innovation opportunities:
+- What creative solutions could improve this code?
+- Are there unconventional approaches worth exploring?
+- How might this code inspire new features or improvements?
+
+Please provide feedback that balances technical accuracy with creative insights.`
+    }
   ]
 
   const mockComments = [
@@ -161,6 +255,16 @@ function PromptDetails() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-emerald-50/50">
+      {/* Copy Notification Toast */}
+      {showCopyNotification && (
+        <div className="fixed top-4 right-4 z-50 bg-emerald-600 text-white px-6 py-3 rounded-lg shadow-xl border border-emerald-700 flex items-center space-x-2">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span className="font-medium">✅ Prompt copied to clipboard!</span>
+        </div>
+      )}
+      
       <div className="max-w-7xl mx-auto py-6">
         {/* Breadcrumb */}
         <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
@@ -314,15 +418,70 @@ function PromptDetails() {
 
                 {activeTab === 'variations' && (
                   <div className="space-y-4">
-                    {mockVariations.map((variation, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4">
-                        <h4 className="font-medium text-gray-900 mb-2">{variation.title}</h4>
-                        <p className="text-gray-600 text-sm">{variation.content}</p>
-                        <button className="mt-2 text-emerald-600 hover:text-emerald-700 text-sm font-medium">
-                          View Full Version →
-                        </button>
-                      </div>
-                    ))}
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Prompt Variations</h3>
+                      <p className="text-gray-600 text-sm">Different versions of this prompt optimized for specific use cases</p>
+                    </div>
+                    {mockVariations.map((variation, index) => {
+                      const isExpanded = expandedVariations.has(index)
+                      return (
+                        <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
+                          <div className="p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-medium text-gray-900">{variation.title}</h4>
+                              <div className="flex items-center space-x-2">
+                                {isExpanded && (
+                                  <button
+                                    onClick={() => navigator.clipboard.writeText(variation.fullContent)}
+                                    className="text-xs px-2 py-1 bg-emerald-50 text-emerald-600 rounded hover:bg-emerald-100 transition-colors"
+                                  >
+                                    Copy
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => toggleVariationExpansion(index)}
+                                  className="text-emerald-600 hover:text-emerald-700 text-sm font-medium flex items-center"
+                                >
+                                  {isExpanded ? (
+                                    <>
+                                      Hide Full Version
+                                      <svg className="ml-1 w-4 h-4 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                      </svg>
+                                    </>
+                                  ) : (
+                                    <>
+                                      View Full Version
+                                      <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                      </svg>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                            {!isExpanded ? (
+                              <p className="text-gray-600 text-sm">{variation.content}</p>
+                            ) : (
+                              <div className="space-y-3">
+                                <p className="text-gray-600 text-sm">{variation.content}</p>
+                                <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-emerald-500">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm font-medium text-gray-700">Full Prompt Content:</span>
+                                    <span className="text-xs text-gray-500">
+                                      ~{Math.ceil(variation.fullContent.length / 4)} tokens
+                                    </span>
+                                  </div>
+                                  <pre className="whitespace-pre-wrap text-gray-800 font-mono text-sm leading-relaxed">
+                                    {variation.fullContent}
+                                  </pre>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 )}
 
@@ -380,7 +539,7 @@ function PromptDetails() {
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={() => window.open('https://chat.openai.com', '_blank')}
+                onClick={() => copyAndOpenAI('https://chat.openai.com', 'ChatGPT')}
                 className="inline-flex items-center bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-3 rounded-lg font-medium hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-sm hover:shadow-md"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -388,7 +547,10 @@ function PromptDetails() {
                 </svg>
                 Try in ChatGPT
               </button>
-              <button className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+              <button
+                onClick={() => copyAndOpenAI('https://claude.ai', 'Claude')}
+                className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
