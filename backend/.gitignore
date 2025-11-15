@@ -1,5 +1,0 @@
-/target
-*.sqlite
-
-node_modules
-.env
